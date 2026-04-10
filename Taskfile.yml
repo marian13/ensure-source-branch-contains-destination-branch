@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  install:
+    cmds:
+      - brew install act
+
+  test:integration:
+    desc: Run all integration tests.
+    cmds:
+      - task: test:integration:identical
+
+  test:integration:identical:
+    desc: Test status=identical (current branch is main)
+    cmds:
+      - act push -W .github/workflows/test.yml
