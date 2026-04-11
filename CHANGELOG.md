@@ -12,4 +12,4 @@
 - Expose `status` output with one of: `sameBranch`, `ahead`, `identical`, `behind`, `diverged`, `shaApiError`, `compareApiError`, `unknownStatus`, `unexpectedException`.
 - Exit early with `status: sameBranch` when source and destination are the same branch.
 - Fail with actionable message on `behind` or `diverged`, suggesting a merge or rebase.
-- Log resolved SHA and basehead string at debug level for diagnosability.
+- Log resolved SHA and basehead string at debug level for easier debugging.
