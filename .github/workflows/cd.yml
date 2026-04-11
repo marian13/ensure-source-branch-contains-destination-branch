@@ -23,7 +23,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: googleapis/release-please-action@v4
+      - id: release
+        uses: googleapis/release-please-action@v4
         with:
           changelog-path: CHANGELOG.md
           default-branch: main
@@ -31,3 +32,16 @@ jobs:
           package-name: ensure-source-branch-contains-destination-branch
           release-type: node
           version-file: package.json
+
+      ##
+      # NOTE: Checkout is required to push the updated floating tag back to the remote.
+      # NOTE: The floating `v1` tag always points to the latest `1.x` release, so users pinned to `@v1` get updates automatically.
+      #
+      - uses: actions/checkout@v6
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Update floating v1 tag
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          git tag -f v1 ${{ steps.release.outputs.sha }}
+          git push origin v1 --force
