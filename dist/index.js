@@ -60334,7 +60334,7 @@ function prependTag(tag, message) {
  * - https://github.com/actions/toolkit/blob/%40actions/github%401.1.0/packages/github/src/context.ts#L38
  */
 async function resolveSha({ octokit, repo, sourceBranch }) {
-  const currentBranch = github_context.ref.replace('refs/heads/', '');
+  const currentBranch = github_context.ref.replace("refs/heads/", "");
 
   if (sourceBranch === currentBranch) {
     return github_context.sha;
@@ -60351,7 +60351,7 @@ async function resolveSha({ octokit, repo, sourceBranch }) {
   } catch (exception) {
     core.debug(exception.stack);
 
-    return '';
+    return "";
   }
 }
 
@@ -60377,16 +60377,16 @@ async function resolveCompareApiData({
 }
 
 async function main() {
-  const sourceBranch = core.getInput('source-branch', { required: true });
-  const destinationBranch = core.getInput('destination-branch', {
+  const sourceBranch = core.getInput("source-branch", { required: true });
+  const destinationBranch = core.getInput("destination-branch", {
     required: true,
   });
-  const token = core.getInput('token', { required: true });
-  const tag = core.getInput('tag');
+  const token = core.getInput("token", { required: true });
+  const tag = core.getInput("tag");
 
   try {
     if (sourceBranch === destinationBranch) {
-      core.setOutput('status', 'sameBranch');
+      core.setOutput("status", "sameBranch");
 
       core.info(
         prependTag(
@@ -60404,7 +60404,7 @@ async function main() {
     const sha = await resolveSha({ octokit, repo, sourceBranch });
 
     if (!sha) {
-      core.setOutput('status', 'shaApiError');
+      core.setOutput("status", "shaApiError");
 
       core.setFailed(
         prependTag(
@@ -60424,7 +60424,7 @@ async function main() {
     });
 
     if (!data) {
-      core.setOutput('status', 'compareApiError');
+      core.setOutput("status", "compareApiError");
 
       core.setFailed(
         prependTag(
@@ -60436,8 +60436,8 @@ async function main() {
       return;
     }
 
-    if (data.status === 'ahead' || data.status === 'identical') {
-      core.setOutput('status', data.status);
+    if (data.status === "ahead" || data.status === "identical") {
+      core.setOutput("status", data.status);
 
       core.info(
         prependTag(
@@ -60449,8 +60449,8 @@ async function main() {
       return;
     }
 
-    if (data.status === 'behind' || data.status === 'diverged') {
-      core.setOutput('status', data.status);
+    if (data.status === "behind" || data.status === "diverged") {
+      core.setOutput("status", data.status);
 
       core.setFailed(
         prependTag(
@@ -60462,13 +60462,13 @@ async function main() {
       return;
     }
 
-    core.setOutput('status', 'unknownStatus');
+    core.setOutput("status", "unknownStatus");
 
     core.setFailed(
-      prependTag(tag, `Unexpected compare status: '${data.status || ''}'.`),
+      prependTag(tag, `Unexpected compare status: '${data.status || ""}'.`),
     );
   } catch (exception) {
-    core.setOutput('status', 'unexpectedException');
+    core.setOutput("status", "unexpectedException");
 
     core.setFailed(prependTag(tag, exception.message));
 

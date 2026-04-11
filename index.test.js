@@ -1,26 +1,26 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock('@actions/github', () => ({
+vi.mock("@actions/github", () => ({
   context: {
-    repo: { owner: 'marian13', repo: 'convenient_service' },
-    ref: 'refs/heads/feature/callbacks',
-    sha: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+    repo: { owner: "marian13", repo: "convenient_service" },
+    ref: "refs/heads/feature/callbacks",
+    sha: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
   },
   getOctokit: vi.fn(),
 }));
 
-import * as core from '@actions/core';
-import * as github from '@actions/github';
-import { main } from './index.js';
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import { main } from "./index.js";
 
-describe('GitHub Action', () => {
-  describe('marian13/ensure-source-branch-contains-destination-branch GitHub Action', () => {
-    describe('v1', () => {
+describe("GitHub Action", () => {
+  describe("marian13/ensure-source-branch-contains-destination-branch GitHub Action", () => {
+    describe("v1", () => {
       const ENV = {
-        'INPUT_SOURCE-BRANCH': 'feature/callbacks',
-        'INPUT_DESTINATION-BRANCH': 'main',
-        INPUT_TOKEN: 'ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890',
-        INPUT_TAG: 'ensure-source-branch-contains-destination-branch',
+        "INPUT_SOURCE-BRANCH": "feature/callbacks",
+        "INPUT_DESTINATION-BRANCH": "main",
+        INPUT_TOKEN: "ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890",
+        INPUT_TAG: "ensure-source-branch-contains-destination-branch",
       };
 
       beforeEach(() => {
@@ -28,16 +28,16 @@ describe('GitHub Action', () => {
 
         Object.assign(process.env, ENV);
 
-        vi.spyOn(core, 'info');
-        vi.spyOn(core, 'setFailed');
-        vi.spyOn(core, 'setOutput');
-        vi.spyOn(core, 'debug');
+        vi.spyOn(core, "info");
+        vi.spyOn(core, "setFailed");
+        vi.spyOn(core, "setOutput");
+        vi.spyOn(core, "debug");
 
         github.getOctokit.mockReturnValue({
           rest: {
             repos: {
               compareCommitsWithBasehead: vi.fn().mockResolvedValue({
-                data: { status: 'ahead' },
+                data: { status: "ahead" },
               }),
             },
           },
@@ -50,49 +50,49 @@ describe('GitHub Action', () => {
         vi.restoreAllMocks();
       });
 
-      describe('when source-branch is not passed', () => {
+      describe("when source-branch is not passed", () => {
         beforeEach(() => {
-          delete process.env['INPUT_SOURCE-BRANCH'];
+          delete process.env["INPUT_SOURCE-BRANCH"];
         });
 
-        test('it fails', async () => {
-          await expect(main()).rejects.toThrow('source-branch');
+        test("it fails", async () => {
+          await expect(main()).rejects.toThrow("source-branch");
         });
       });
 
-      describe('when destination-branch is not passed', () => {
+      describe("when destination-branch is not passed", () => {
         beforeEach(() => {
-          delete process.env['INPUT_DESTINATION-BRANCH'];
+          delete process.env["INPUT_DESTINATION-BRANCH"];
         });
 
-        test('it fails', async () => {
-          await expect(main()).rejects.toThrow('destination-branch');
+        test("it fails", async () => {
+          await expect(main()).rejects.toThrow("destination-branch");
         });
       });
 
-      describe('when token is not passed', () => {
+      describe("when token is not passed", () => {
         beforeEach(() => {
-          delete process.env['INPUT_TOKEN'];
+          delete process.env["INPUT_TOKEN"];
         });
 
-        test('it fails', async () => {
-          await expect(main()).rejects.toThrow('token');
+        test("it fails", async () => {
+          await expect(main()).rejects.toThrow("token");
         });
       });
 
-      describe('when source and destination are same branch', () => {
+      describe("when source and destination are same branch", () => {
         beforeEach(() => {
-          process.env['INPUT_SOURCE-BRANCH'] = 'main';
-          process.env['INPUT_DESTINATION-BRANCH'] = 'main';
+          process.env["INPUT_SOURCE-BRANCH"] = "main";
+          process.env["INPUT_DESTINATION-BRANCH"] = "main";
         });
 
-        test('it succeeds', async () => {
+        test("it succeeds", async () => {
           await main();
 
           expect(core.setFailed).not.toHaveBeenCalled();
         });
 
-        test('it logs info message', async () => {
+        test("it logs info message", async () => {
           await main();
 
           expect(core.info).toHaveBeenCalledWith(
@@ -100,19 +100,19 @@ describe('GitHub Action', () => {
           );
         });
 
-        test('it sets status to sameBranch', async () => {
+        test("it sets status to sameBranch", async () => {
           await main();
 
-          expect(core.setOutput).toHaveBeenCalledWith('status', 'sameBranch');
+          expect(core.setOutput).toHaveBeenCalledWith("status", "sameBranch");
         });
       });
 
-      describe('when SHA API fails', () => {
+      describe("when SHA API fails", () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
             rest: {
               git: {
-                getRef: vi.fn().mockRejectedValue(new Error('API error')),
+                getRef: vi.fn().mockRejectedValue(new Error("API error")),
               },
               repos: {
                 compareCommitsWithBasehead: vi.fn(),
@@ -120,10 +120,10 @@ describe('GitHub Action', () => {
             },
           });
 
-          process.env['INPUT_SOURCE-BRANCH'] = 'feature/other-branch';
+          process.env["INPUT_SOURCE-BRANCH"] = "feature/other-branch";
         });
 
-        test('it fails', async () => {
+        test("it fails", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
@@ -131,27 +131,27 @@ describe('GitHub Action', () => {
           );
         });
 
-        test('it sets status to shaApiError', async () => {
+        test("it sets status to shaApiError", async () => {
           await main();
 
-          expect(core.setOutput).toHaveBeenCalledWith('status', 'shaApiError');
+          expect(core.setOutput).toHaveBeenCalledWith("status", "shaApiError");
         });
       });
 
-      describe('when compare API fails', () => {
+      describe("when compare API fails", () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
             rest: {
               repos: {
                 compareCommitsWithBasehead: vi
                   .fn()
-                  .mockRejectedValue(new Error('API error')),
+                  .mockRejectedValue(new Error("API error")),
               },
             },
           });
         });
 
-        test('it fails', async () => {
+        test("it fails", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
@@ -159,124 +159,124 @@ describe('GitHub Action', () => {
           );
         });
 
-        test('it fails with message', async () => {
+        test("it fails with message", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining('GitHub Compare API call failed'),
+            expect.stringContaining("GitHub Compare API call failed"),
           );
         });
 
-        test('it sets status to compareApiError', async () => {
+        test("it sets status to compareApiError", async () => {
           await main();
 
           expect(core.setOutput).toHaveBeenCalledWith(
-            'status',
-            'compareApiError',
+            "status",
+            "compareApiError",
           );
         });
 
-        describe('when ACTIONS_STEP_DEBUG is set', () => {
+        describe("when ACTIONS_STEP_DEBUG is set", () => {
           beforeEach(() => {
-            process.env['ACTIONS_STEP_DEBUG'] = 'true';
+            process.env["ACTIONS_STEP_DEBUG"] = "true";
           });
 
           afterEach(() => {
-            delete process.env['ACTIONS_STEP_DEBUG'];
+            delete process.env["ACTIONS_STEP_DEBUG"];
           });
 
-          test('it logs exception stack trace', async () => {
+          test("it logs exception stack trace", async () => {
             await main();
 
             expect(core.debug).toHaveBeenCalledWith(
-              expect.stringContaining('Error: API error'),
+              expect.stringContaining("Error: API error"),
             );
           });
         });
       });
 
-      describe('when source branch is ahead of destination branch', () => {
+      describe("when source branch is ahead of destination branch", () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
             rest: {
               repos: {
                 compareCommitsWithBasehead: vi
                   .fn()
-                  .mockResolvedValue({ data: { status: 'ahead' } }),
+                  .mockResolvedValue({ data: { status: "ahead" } }),
               },
             },
           });
         });
 
-        test('it succeeds', async () => {
+        test("it succeeds", async () => {
           await main();
 
           expect(core.setFailed).not.toHaveBeenCalled();
         });
 
-        test('it logs info message', async () => {
+        test("it logs info message", async () => {
           await main();
 
           expect(core.info).toHaveBeenCalledWith(
-            expect.stringContaining('status: ahead'),
+            expect.stringContaining("status: ahead"),
           );
         });
 
-        test('it sets status to ahead', async () => {
+        test("it sets status to ahead", async () => {
           await main();
 
-          expect(core.setOutput).toHaveBeenCalledWith('status', 'ahead');
+          expect(core.setOutput).toHaveBeenCalledWith("status", "ahead");
         });
       });
 
-      describe('when source branch is identical to destination branch commits', () => {
+      describe("when source branch is identical to destination branch commits", () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
             rest: {
               repos: {
                 compareCommitsWithBasehead: vi
                   .fn()
-                  .mockResolvedValue({ data: { status: 'identical' } }),
+                  .mockResolvedValue({ data: { status: "identical" } }),
               },
             },
           });
         });
 
-        test('it succeeds', async () => {
+        test("it succeeds", async () => {
           await main();
 
           expect(core.setFailed).not.toHaveBeenCalled();
         });
 
-        test('it logs info message', async () => {
+        test("it logs info message", async () => {
           await main();
 
           expect(core.info).toHaveBeenCalledWith(
-            expect.stringContaining('status: identical'),
+            expect.stringContaining("status: identical"),
           );
         });
 
-        test('it sets status to identical', async () => {
+        test("it sets status to identical", async () => {
           await main();
 
-          expect(core.setOutput).toHaveBeenCalledWith('status', 'identical');
+          expect(core.setOutput).toHaveBeenCalledWith("status", "identical");
         });
       });
 
-      describe('when source branch is behind destination branch', () => {
+      describe("when source branch is behind destination branch", () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
             rest: {
               repos: {
                 compareCommitsWithBasehead: vi
                   .fn()
-                  .mockResolvedValue({ data: { status: 'behind' } }),
+                  .mockResolvedValue({ data: { status: "behind" } }),
               },
             },
           });
         });
 
-        test('it fails', async () => {
+        test("it fails", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
@@ -284,35 +284,35 @@ describe('GitHub Action', () => {
           );
         });
 
-        test('it fails with message', async () => {
+        test("it fails with message", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining('behind'),
+            expect.stringContaining("behind"),
           );
         });
 
-        test('it sets status to behind', async () => {
+        test("it sets status to behind", async () => {
           await main();
 
-          expect(core.setOutput).toHaveBeenCalledWith('status', 'behind');
+          expect(core.setOutput).toHaveBeenCalledWith("status", "behind");
         });
       });
 
-      describe('when source branch is diverged from destination branch', () => {
+      describe("when source branch is diverged from destination branch", () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
             rest: {
               repos: {
                 compareCommitsWithBasehead: vi
                   .fn()
-                  .mockResolvedValue({ data: { status: 'diverged' } }),
+                  .mockResolvedValue({ data: { status: "diverged" } }),
               },
             },
           });
         });
 
-        test('it fails', async () => {
+        test("it fails", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
@@ -320,35 +320,35 @@ describe('GitHub Action', () => {
           );
         });
 
-        test('it fails with message', async () => {
+        test("it fails with message", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining('diverged'),
+            expect.stringContaining("diverged"),
           );
         });
 
-        test('it sets status to diverged', async () => {
+        test("it sets status to diverged", async () => {
           await main();
 
-          expect(core.setOutput).toHaveBeenCalledWith('status', 'diverged');
+          expect(core.setOutput).toHaveBeenCalledWith("status", "diverged");
         });
       });
 
-      describe('when compare returns unexpected status', () => {
+      describe("when compare returns unexpected status", () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
             rest: {
               repos: {
                 compareCommitsWithBasehead: vi
                   .fn()
-                  .mockResolvedValue({ data: { status: 'unknown' } }),
+                  .mockResolvedValue({ data: { status: "unknown" } }),
               },
             },
           });
         });
 
-        test('it fails', async () => {
+        test("it fails", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
@@ -356,91 +356,91 @@ describe('GitHub Action', () => {
           );
         });
 
-        test('it fails with message', async () => {
+        test("it fails with message", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining('Unexpected'),
+            expect.stringContaining("Unexpected"),
           );
         });
 
-        test('it sets status to unknownStatus', async () => {
+        test("it sets status to unknownStatus", async () => {
           await main();
 
           expect(core.setOutput).toHaveBeenCalledWith(
-            'status',
-            'unknownStatus',
+            "status",
+            "unknownStatus",
           );
         });
       });
 
-      describe('when unexpected exception is raised', () => {
+      describe("when unexpected exception is raised", () => {
         beforeEach(() => {
           github.getOctokit.mockImplementation(() => {
-            throw new Error('Unexpected error');
+            throw new Error("Unexpected error");
           });
         });
 
-        test('it fails', async () => {
+        test("it fails", async () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining('Unexpected error'),
+            expect.stringContaining("Unexpected error"),
           );
         });
 
-        test('it sets status to unexpectedException', async () => {
+        test("it sets status to unexpectedException", async () => {
           await main();
 
           expect(core.setOutput).toHaveBeenCalledWith(
-            'status',
-            'unexpectedException',
+            "status",
+            "unexpectedException",
           );
         });
 
-        describe('when ACTIONS_STEP_DEBUG is set', () => {
+        describe("when ACTIONS_STEP_DEBUG is set", () => {
           beforeEach(() => {
-            process.env['ACTIONS_STEP_DEBUG'] = 'true';
+            process.env["ACTIONS_STEP_DEBUG"] = "true";
           });
 
           afterEach(() => {
-            delete process.env['ACTIONS_STEP_DEBUG'];
+            delete process.env["ACTIONS_STEP_DEBUG"];
           });
 
-          test('it logs exception stack trace', async () => {
+          test("it logs exception stack trace", async () => {
             await main();
 
             expect(core.debug).toHaveBeenCalledWith(
-              expect.stringContaining('Error: Unexpected error'),
+              expect.stringContaining("Error: Unexpected error"),
             );
           });
         });
       });
 
-      describe('when tag is custom', () => {
+      describe("when tag is custom", () => {
         beforeEach(() => {
-          process.env['INPUT_TAG'] = 'my-custom-tag';
+          process.env["INPUT_TAG"] = "my-custom-tag";
         });
 
-        test('it prepends custom tag to log messages', async () => {
+        test("it prepends custom tag to log messages", async () => {
           await main();
 
           expect(core.info).toHaveBeenCalledWith(
-            expect.stringContaining('[my-custom-tag]'),
+            expect.stringContaining("[my-custom-tag]"),
           );
         });
       });
 
-      describe('when tag is empty', () => {
+      describe("when tag is empty", () => {
         beforeEach(() => {
-          process.env['INPUT_TAG'] = '';
+          process.env["INPUT_TAG"] = "";
         });
 
-        test('it logs messages without a tag', async () => {
+        test("it logs messages without a tag", async () => {
           await main();
 
           expect(core.info).toHaveBeenCalledWith(
-            expect.not.stringContaining('['),
+            expect.not.stringContaining("["),
           );
         });
       });

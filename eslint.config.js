@@ -1,19 +1,19 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import vitest from 'eslint-plugin-vitest';
+import js from "@eslint/js";
+import globals from "globals";
+import vitest from "eslint-plugin-vitest";
 
 export default [
   js.configs.recommended,
   {
-    files: ['**/*.js'],
+    files: ["**/*.js"],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      ecmaVersion: "latest",
+      sourceType: "module",
       globals: globals.node,
     },
   },
   {
-    files: ['**/*.test.js'],
+    files: ["**/*.test.js"],
     plugins: { vitest },
     languageOptions: {
       globals: vitest.environments.env.globals,
@@ -23,6 +23,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ["dist/**", "node_modules/**"],
   },
 ];

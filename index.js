@@ -2,20 +2,20 @@
  * NOTE: `@actions/core` is used to get action inputs and set its outputs.
  * - https://github.com/actions/toolkit/tree/main/packages/core
  */
-import * as core from '@actions/core';
+import * as core from "@actions/core";
 
 /**
  * NOTE: `@actions/github` is used to send requests to GitHub Compare AI.
  * - https://docs.github.com/en/rest/commits/commits?apiVersion=2026-03-10#compare-two-commits
  * - https://github.com/actions/toolkit/tree/main/packages/github
  */
-import * as github from '@actions/github';
+import * as github from "@actions/github";
 
 /**
  * NOTE: `pathToFileURL` is used to detect if this file is run directly.
  * - https://nodejs.org/api/url.html#urlpathtofileurlpath
  */
-import { pathToFileURL } from 'url';
+import { pathToFileURL } from "url";
 
 function prependTag(tag, message) {
   return tag ? `[${tag}] ${message}` : message;
@@ -27,7 +27,7 @@ function prependTag(tag, message) {
  * - https://github.com/actions/toolkit/blob/%40actions/github%401.1.0/packages/github/src/context.ts#L38
  */
 async function resolveSha({ octokit, repo, sourceBranch }) {
-  const currentBranch = github.context.ref.replace('refs/heads/', '');
+  const currentBranch = github.context.ref.replace("refs/heads/", "");
 
   if (sourceBranch === currentBranch) {
     return github.context.sha;
@@ -44,7 +44,7 @@ async function resolveSha({ octokit, repo, sourceBranch }) {
   } catch (exception) {
     core.debug(exception.stack);
 
-    return '';
+    return "";
   }
 }
 
@@ -70,16 +70,16 @@ async function resolveCompareApiData({
 }
 
 export async function main() {
-  const sourceBranch = core.getInput('source-branch', { required: true });
-  const destinationBranch = core.getInput('destination-branch', {
+  const sourceBranch = core.getInput("source-branch", { required: true });
+  const destinationBranch = core.getInput("destination-branch", {
     required: true,
   });
-  const token = core.getInput('token', { required: true });
-  const tag = core.getInput('tag');
+  const token = core.getInput("token", { required: true });
+  const tag = core.getInput("tag");
 
   try {
     if (sourceBranch === destinationBranch) {
-      core.setOutput('status', 'sameBranch');
+      core.setOutput("status", "sameBranch");
 
       core.info(
         prependTag(
@@ -97,7 +97,7 @@ export async function main() {
     const sha = await resolveSha({ octokit, repo, sourceBranch });
 
     if (!sha) {
-      core.setOutput('status', 'shaApiError');
+      core.setOutput("status", "shaApiError");
 
       core.setFailed(
         prependTag(
@@ -117,7 +117,7 @@ export async function main() {
     });
 
     if (!data) {
-      core.setOutput('status', 'compareApiError');
+      core.setOutput("status", "compareApiError");
 
       core.setFailed(
         prependTag(
@@ -129,8 +129,8 @@ export async function main() {
       return;
     }
 
-    if (data.status === 'ahead' || data.status === 'identical') {
-      core.setOutput('status', data.status);
+    if (data.status === "ahead" || data.status === "identical") {
+      core.setOutput("status", data.status);
 
       core.info(
         prependTag(
@@ -142,8 +142,8 @@ export async function main() {
       return;
     }
 
-    if (data.status === 'behind' || data.status === 'diverged') {
-      core.setOutput('status', data.status);
+    if (data.status === "behind" || data.status === "diverged") {
+      core.setOutput("status", data.status);
 
       core.setFailed(
         prependTag(
@@ -155,13 +155,13 @@ export async function main() {
       return;
     }
 
-    core.setOutput('status', 'unknownStatus');
+    core.setOutput("status", "unknownStatus");
 
     core.setFailed(
-      prependTag(tag, `Unexpected compare status: '${data.status || ''}'.`),
+      prependTag(tag, `Unexpected compare status: '${data.status || ""}'.`),
     );
   } catch (exception) {
-    core.setOutput('status', 'unexpectedException');
+    core.setOutput("status", "unexpectedException");
 
     core.setFailed(prependTag(tag, exception.message));
 
