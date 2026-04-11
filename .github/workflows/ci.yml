@@ -7,6 +7,9 @@ name: CI
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -16,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - run: npm install
       - run: npm run lint
-      - run: npm run test:unit
+      - run: npm test

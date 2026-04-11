@@ -23,6 +23,10 @@ outputs:
   status:
     description: Result of the branch comparison (sameBranch, ahead, identical, behind, diverged, shaApiError, compareApiError, unknownStatus, unexpectedException).
 
+branding:
+  icon: git-merge
+  color: blue
+
 runs:
   using: node24
   main: dist/index.js
