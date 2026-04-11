@@ -60324,10 +60324,6 @@ var external_url_ = __nccwpck_require__(7016);
  */
 
 
-function prependTag(tag, message) {
-  return tag ? `[${tag}] ${message}` : message;
-}
-
 /**
  * NOTE: `sha` is the full commit hash of the HEAD commit on the source branch. For example: `a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2`.
  * - https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits#about-commits
@@ -60384,6 +60380,8 @@ async function main() {
   const token = core.getInput("token", { required: true });
   const tag = core.getInput("tag");
 
+  const toMessage = (text) => (tag ? `[${tag}] ${text}` : text);
+
   /**
    * NOTE: `core.setSecret` masks the token in all subsequent log output.
    * NOTE: GitHub Actions only auto-masks values from `secrets` context. Tokens passed as plain inputs (e.g. a PAT) would otherwise be logged in plain text.
@@ -60396,8 +60394,7 @@ async function main() {
       core.setOutput("status", "sameBranch");
 
       core.info(
-        prependTag(
-          tag,
+        toMessage(
           `Source branch and destination branch are both '${sourceBranch}'. Nothing to check.`,
         ),
       );
@@ -60414,17 +60411,14 @@ async function main() {
       core.setOutput("status", "shaApiError");
 
       core.setFailed(
-        prependTag(
-          tag,
-          `Failed to resolve SHA for source branch '${sourceBranch}'.`,
-        ),
+        toMessage(`Failed to resolve SHA for source branch '${sourceBranch}'.`),
       );
 
       return;
     }
 
-    core.debug(prependTag(tag, `Resolved SHA for '${sourceBranch}': ${sha}.`));
-    core.debug(prependTag(tag, `Comparing '${destinationBranch}...${sha}'.`));
+    core.debug(toMessage(`Resolved SHA for '${sourceBranch}': ${sha}.`));
+    core.debug(toMessage(`Comparing '${destinationBranch}...${sha}'.`));
 
     const data = await resolveCompareApiData({
       octokit,
@@ -60437,8 +60431,7 @@ async function main() {
       core.setOutput("status", "compareApiError");
 
       core.setFailed(
-        prependTag(
-          tag,
+        toMessage(
           `GitHub Compare API call failed for '${destinationBranch}...${sourceBranch}'.`,
         ),
       );
@@ -60450,8 +60443,7 @@ async function main() {
       core.setOutput("status", data.status);
 
       core.info(
-        prependTag(
-          tag,
+        toMessage(
           `Source branch '${sourceBranch}' contains destination branch '${destinationBranch}' (status: ${data.status}).`,
         ),
       );
@@ -60463,8 +60455,7 @@ async function main() {
       core.setOutput("status", data.status);
 
       core.setFailed(
-        prependTag(
-          tag,
+        toMessage(
           `Source branch '${sourceBranch}' must contain destination branch '${destinationBranch}' (compare status: ${data.status}). Merge or rebase '${destinationBranch}' into '${sourceBranch}'.`,
         ),
       );
@@ -60475,12 +60466,12 @@ async function main() {
     core.setOutput("status", "unknownStatus");
 
     core.setFailed(
-      prependTag(tag, `Unexpected compare status: '${data.status || ""}'.`),
+      toMessage(`Unexpected compare status: '${data.status || ""}'.`),
     );
   } catch (exception) {
     core.setOutput("status", "unexpectedException");
 
-    core.setFailed(prependTag(tag, exception.message));
+    core.setFailed(toMessage(exception.message));
 
     core.debug(exception.stack);
   }
@@ -60488,7 +60479,7 @@ async function main() {
 
 /**
  * NOTE: Checks whether this file is run from command line.
- * NOTE: There no need to immediately invoke `main` in unit tests.
+ * NOTE: There is no need to immediately invoke `main` in unit tests.
  * - https://stackoverflow.com/a/68848622/12201472
  */
 if (import.meta.url === (0,external_url_.pathToFileURL)(process.argv[1]).href) {

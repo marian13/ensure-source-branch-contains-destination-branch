@@ -32,12 +32,12 @@ jobs:
 
 All inputs are optional.
 
-| Input                | Description                                                                         | Default                                                |
-| -------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `source-branch`      | The branch to check.                                                                | `github.ref_name` (branch that triggered the workflow) |
-| `destination-branch` | The branch that must be contained in the source branch.                             | `github.event.repository.default_branch`               |
-| `token`              | GitHub token used to call the Compare API.                                          | `github.token`                                         |
-| `tag`                | Tag prepended to log messages (e.g. `[my-tag] message`). Omit to log without a tag. | `ensure-source-branch-contains-destination-branch`     |
+| Input                | Description                                                                                           | Default                                                |
+| -------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `source-branch`      | The branch to check.                                                                                  | `github.ref_name` (branch that triggered the workflow) |
+| `destination-branch` | The branch that must be contained in the source branch.                                               | `github.event.repository.default_branch`               |
+| `token`              | GitHub token used to call the SHA API and the Compare API.                                            | `github.token`                                         |
+| `tag`                | Tag prepended to log messages (e.g. `[my-tag] message`). Set to an empty string to log without a tag. | `ensure-source-branch-contains-destination-branch`     |
 
 Example with explicit inputs:
 
@@ -49,6 +49,7 @@ steps:
       source-branch: feature/my-feature
       destination-branch: main
       token: ${{ secrets.GITHUB_TOKEN }}
+      tag: my-tag
   # ...
 ```
 
@@ -73,15 +74,17 @@ steps:
 
 ## How does it work?
 
-1. Reads `source-branch`, `destination-branch`, and `token` from the action inputs.
+1. Reads `source-branch`, `destination-branch`, `token`, and `tag` from the action inputs.
 2. If both branches are the same, exits immediately with `status: sameBranch` - nothing to check.
-3. Calls the [GitHub Compare API](https://docs.github.com/en/rest/commits/commits#compare-two-commits) (`GET /repos/{owner}/{repo}/compare/{basehead}`) using the destination branch as the base and the source branch's HEAD SHA as the head.
-4. Interprets the API response:
+3. Calls the [GitHub SHA API](https://docs.github.com/en/rest/git/refs#get-a-reference) (`GET /repos/{owner}/{repo}/git/ref/heads/{branch}`) to resolve the HEAD SHA of the source branch.
+4. Calls the [GitHub Compare API](https://docs.github.com/en/rest/commits/commits#compare-two-commits) (`GET /repos/{owner}/{repo}/compare/{basehead}`) using the destination branch as the base and the source branch's HEAD SHA as the head.
+5. Interprets the API response:
    - `ahead` or `identical` - source contains all commits from destination, action succeeds.
    - `behind` or `diverged` - source is missing commits from destination, action fails with a message suggesting a merge or rebase.
+   - `shaApiError` - the GitHub SHA API call failed (e.g. network issue, invalid token, or branch not found).
    - `compareApiError` - the GitHub Compare API call failed (e.g. network issue or invalid token).
    - `unknownStatus` or `unexpectedException` - should never happen under normal conditions. If you see these, it is probably a bug in the action itself - please open an issue.
-5. Sets the `status` output in all cases so downstream steps can branch on the result.
+6. Sets the `status` output in all cases so downstream steps can branch on the result.
 
 ---
 
