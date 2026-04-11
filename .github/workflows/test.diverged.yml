@@ -19,6 +19,10 @@ jobs:
     name: Test (diverged)
     runs-on: ubuntu-latest
     steps:
+      ##
+      # NOTE: `fetch-depth: 0` fetches the full git history. Required here because `HEAD^` must exist to create a diverged branch from the previous commit.
+      # - https://github.com/actions/checkout?tab=readme-ov-file#usage
+      #
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0

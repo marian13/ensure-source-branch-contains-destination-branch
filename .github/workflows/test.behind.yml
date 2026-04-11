@@ -19,6 +19,10 @@ jobs:
     name: Test (behind)
     runs-on: ubuntu-latest
     steps:
+      ##
+      # NOTE: `fetch-depth: 0` is not needed here — the destination branch is created from a fresh empty commit on top of HEAD, so no prior history is required.
+      # - https://github.com/actions/checkout?tab=readme-ov-file#usage
+      #
       - uses: actions/checkout@v6
 
       ##

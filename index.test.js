@@ -41,6 +41,9 @@ describe("GitHub Action", () => {
 
         github.getOctokit.mockReturnValue({
           rest: {
+            git: {
+              getRef: vi.fn(),
+            },
             repos: {
               compareCommitsWithBasehead: vi.fn().mockResolvedValue({
                 data: { status: "ahead" },
@@ -218,14 +221,6 @@ describe("GitHub Action", () => {
           );
         });
 
-        test("it fails with message", async () => {
-          await main();
-
-          expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining("GitHub Compare API call failed"),
-          );
-        });
-
         test("it sets status to compareApiError", async () => {
           await main();
 
@@ -359,14 +354,6 @@ describe("GitHub Action", () => {
           );
         });
 
-        test("it fails with message", async () => {
-          await main();
-
-          expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining("behind"),
-          );
-        });
-
         test("it sets status to behind", async () => {
           await main();
 
@@ -395,14 +382,6 @@ describe("GitHub Action", () => {
           );
         });
 
-        test("it fails with message", async () => {
-          await main();
-
-          expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining("diverged"),
-          );
-        });
-
         test("it sets status to diverged", async () => {
           await main();
 
@@ -428,14 +407,6 @@ describe("GitHub Action", () => {
 
           expect(core.setFailed).toHaveBeenCalledWith(
             "[ensure-source-branch-contains-destination-branch] Unexpected compare status: 'unknown'.",
-          );
-        });
-
-        test("it fails with message", async () => {
-          await main();
-
-          expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining("Unexpected"),
           );
         });
 
