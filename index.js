@@ -5,7 +5,7 @@
 import * as core from "@actions/core";
 
 /**
- * NOTE: `@actions/github` is used to send requests to GitHub Compare AI.
+ * NOTE: `@actions/github` is used to send requests to GitHub Compare API.
  * - https://docs.github.com/en/rest/commits/commits?apiVersion=2026-03-10#compare-two-commits
  * - https://github.com/actions/toolkit/tree/main/packages/github
  */
@@ -66,6 +66,11 @@ async function resolveCompareApiData({
 }
 
 export async function main() {
+  /**
+   * NOTE: Inputs are marked as `required: true` to ensure `getInput` throws immediately if a value is missing.
+   * NOTE: In practice, values are always present because `action.yml` defines defaults.
+   * - https://docs.github.com/en/actions/sharing-automations/creating-actions/metadata-syntax-for-github-actions#inputs
+   */
   const sourceBranch = core.getInput("source-branch", { required: true });
   const destinationBranch = core.getInput("destination-branch", {
     required: true,

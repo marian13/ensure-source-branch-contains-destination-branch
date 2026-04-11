@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+vi.mock("@actions/core", async (importOriginal) => ({
+  ...(await importOriginal()),
+}));
+
 vi.mock("@actions/github", () => ({
   context: {
     repo: { owner: "marian13", repo: "convenient_service" },
