@@ -9,6 +9,7 @@ vi.mock("@actions/github", () => ({
     repo: { owner: "marian13", repo: "convenient_service" },
     ref: "refs/heads/feature/callbacks",
     sha: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+    eventName: "push",
   },
   getOctokit: vi.fn(),
 }));
@@ -150,6 +151,49 @@ describe("GitHub Action", () => {
           await main();
 
           expect(core.setOutput).toHaveBeenCalledWith("status", "shaApiError");
+        });
+      });
+
+      describe("when event is pull_request", () => {
+        beforeEach(() => {
+          github.context.eventName = "pull_request";
+
+          github.getOctokit.mockReturnValue({
+            rest: {
+              git: {
+                getRef: vi.fn().mockResolvedValue({
+                  data: {
+                    object: { sha: "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3" },
+                  },
+                }),
+              },
+              repos: {
+                compareCommitsWithBasehead: vi.fn().mockResolvedValue({
+                  data: { status: "ahead" },
+                }),
+              },
+            },
+          });
+        });
+
+        afterEach(() => {
+          github.context.eventName = "push";
+        });
+
+        test("it resolves SHA via API instead of using context.sha", async () => {
+          await main();
+
+          expect(core.debug).toHaveBeenCalledWith(
+            expect.stringContaining("b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3"),
+          );
+        });
+
+        test("it does not use context.sha", async () => {
+          await main();
+
+          expect(core.debug).not.toHaveBeenCalledWith(
+            expect.stringContaining("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"),
+          );
         });
       });
 
