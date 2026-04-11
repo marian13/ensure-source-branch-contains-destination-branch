@@ -53,9 +53,9 @@ steps:
 
 ## Outputs
 
-| Output   | Description                      | Possible values                                                                                              |
-| -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `status` | Result of the branch comparison. | `sameBranch`, `ahead`, `identical`, `behind`, `diverged`, `apiError`, `unknownStatus`, `unexpectedException` |
+| Output   | Description                      | Possible values                                                                                                     |
+| -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `status` | Result of the branch comparison. | `sameBranch`, `ahead`, `identical`, `behind`, `diverged`, `compareApiError`, `unknownStatus`, `unexpectedException` |
 
 Example of how to read the status in a subsequent step:
 
@@ -78,6 +78,8 @@ steps:
 4. Interprets the API response:
    - `ahead` or `identical` - source contains all commits from destination, action succeeds.
    - `behind` or `diverged` - source is missing commits from destination, action fails with a message suggesting a merge or rebase.
+   - `compareApiError` - the GitHub Compare API call failed (e.g. network issue or invalid token).
+   - `unknownStatus` or `unexpectedException` - should never happen under normal conditions. If you see these, it is probably a bug in the action itself - please open an issue.
 5. Sets the `status` output in all cases so downstream steps can branch on the result.
 
 ---

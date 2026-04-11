@@ -60360,7 +60360,7 @@ async function main() {
       basehead: `${destinationBranch}...${sha}`,
     }));
   } catch (exception) {
-    core.setOutput('status', 'apiError');
+    core.setOutput('status', 'compareApiError');
 
     core.setFailed(
       `[${ACTION}] GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}': ${exception.message}`,

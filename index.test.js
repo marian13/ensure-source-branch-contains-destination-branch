@@ -134,10 +134,13 @@ describe('GitHub Action', () => {
           );
         });
 
-        test('it sets status to apiError', async () => {
+        test('it sets status to compareApiError', async () => {
           await main();
 
-          expect(core.setOutput).toHaveBeenCalledWith('status', 'apiError');
+          expect(core.setOutput).toHaveBeenCalledWith(
+            'status',
+            'compareApiError',
+          );
         });
 
         describe('when ACTIONS_STEP_DEBUG is set', () => {
