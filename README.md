@@ -72,7 +72,7 @@ steps:
   # ...
 ```
 
-## Docs
+## More Docs
 
 - [How does it work?](docs/user/how-it-works.md)
 - [Why not `git fetch`?](docs/user/why-not-git-fetch.md)
