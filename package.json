@@ -7,10 +7,9 @@
   "scripts": {
     "build": "ncc build index.js --license licenses.txt -o dist",
     "build:verify": "npm run build && git diff --exit-code dist/",
-    "lint": "npm run lint:prettier && npm run lint:eslint",
-    "lint:eslint": "eslint .",
-    "lint:prettier": "prettier --check .",
     "format": "prettier --write .",
+    "format:verify": "prettier --check .",
+    "lint": "eslint .",
     "test": "vitest run",
     "postinstall": "[ \"$CI\" = \"true\" ] || npx simple-git-hooks"
   },
