@@ -11,10 +11,6 @@ name: Test (behind)
 
 on: [push, pull_request]
 
-permissions:
-  contents: write
-  workflows: write
-
 jobs:
   test:
     runs-on: ubuntu-latest
