@@ -24,12 +24,8 @@ jobs:
         id: release
         uses: googleapis/release-please-action@v4
         with:
-          changelog-path: CHANGELOG.md
-          default-branch: main
-          include-v-in-tag: true
-          package-name: ensure-source-branch-contains-destination-branch
           release-type: node
-          version-file: package.json
+          target-branch: main
 
       ##
       # NOTE: Checkout is required to push the updated floating tag back to the remote.

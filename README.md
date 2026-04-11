@@ -18,7 +18,7 @@ Here is a minimal end-to-end example (`.github/workflows/ci.yml`):
 ```yaml
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   lint:
