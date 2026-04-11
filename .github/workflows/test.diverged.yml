@@ -1,5 +1,5 @@
 ##
-# TODO: "Each repository must not contain any workflow files." - This guideline is unclear, how test workflow can be run by end-user? Does this mean custom GitHub Action literally can NOT contain workflow files just for its ownn testign purposes?
+# TODO: Clarify Marketplace guideline "repository must not contain any workflow files" — does it apply to test workflows too?
 # - https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 #
 #
