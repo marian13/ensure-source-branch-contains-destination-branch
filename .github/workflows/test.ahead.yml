@@ -13,24 +13,32 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create destination branch one commit behind
-        run: git push origin HEAD^:refs/heads/test/destination-ahead-${{ github.run_id }}
+      ##
+      # NOTE: `>> $GITHUB_ENV` sets an environment variable that persists across all subsequent steps in the job.
+      # - https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-environment-variable
+      #
+      - name: Set destination branch
+        run: echo "DESTINATION_BRANCH=test/destination-ahead-${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: Create destination branch with one commit behind
+        run: git push origin HEAD^:refs/heads/$DESTINATION_BRANCH
 
       - name: Run action
         id: check
         uses: ./
         with:
           source-branch: ${{ github.ref_name }}
-          destination-branch: test/destination-ahead-${{ github.run_id }}
+          destination-branch: ${{ env.DESTINATION_BRANCH }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Assert status is ahead
         run: |
           if [ "${{ steps.check.outputs.status }}" != "ahead" ]; then
             echo "Expected 'ahead', got '${{ steps.check.outputs.status }}'"
+
             exit 1
           fi
 
       - name: Cleanup
         if: always()
-        run: git push origin --delete test/destination-ahead-${{ github.run_id }}
+        run: git push origin --delete $DESTINATION_BRANCH

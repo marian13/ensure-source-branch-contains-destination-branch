@@ -13,16 +13,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configure git
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions"
+      ##
+      # NOTE: `>> $GITHUB_ENV` sets an environment variable that persists across all subsequent steps in the job.
+      # - https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-environment-variable
+      #
+      - name: Set destination branch
+        run: echo "DESTINATION_BRANCH=test/destination-diverged-${{ github.run_id }}" >> $GITHUB_ENV
 
+      - name: Configure git user
+        run: |
+          git config user.email "marian13@example.com"
+          git config user.name "Marian13"
+
+      ##
+      # NOTE: `git checkout -` switches back to previous branch.
+      # - https://stackoverflow.com/a/56770029/12201472
+      # - https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-branch
+      #
       - name: Create diverged destination branch
         run: |
-          git checkout -b test/destination-diverged-${{ github.run_id }} HEAD^
+          git checkout -b $DESTINATION_BRANCH HEAD^
           git commit --allow-empty -m "diverged commit"
-          git push origin test/destination-diverged-${{ github.run_id }}
+          git push origin $DESTINATION_BRANCH
           git checkout -
 
       - name: Run action
@@ -31,16 +43,17 @@ jobs:
         uses: ./
         with:
           source-branch: ${{ github.ref_name }}
-          destination-branch: test/destination-diverged-${{ github.run_id }}
+          destination-branch: ${{ env.DESTINATION_BRANCH }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Assert status is diverged
         run: |
           if [ "${{ steps.check.outputs.status }}" != "diverged" ]; then
             echo "Expected 'diverged', got '${{ steps.check.outputs.status }}'"
+
             exit 1
           fi
 
       - name: Cleanup
         if: always()
-        run: git push origin --delete test/destination-diverged-${{ github.run_id }}
+        run: git push origin --delete $DESTINATION_BRANCH
