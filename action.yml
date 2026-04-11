@@ -11,11 +11,11 @@ inputs:
     required: false
     default: ${{ github.event.repository.default_branch }}
   token:
-    description: GitHub token used to call the Compare API.
+    description: GitHub token used to call the SHA API and the Compare API.
     required: false
     default: ${{ github.token }}
   tag:
-    description: Tag prepended to log messages (e.g. "[my-tag] message"). Omit to log without a tag.
+    description: Tag prepended to log messages (e.g. "[my-tag] message"). Set to '' to log without a tag.
     required: false
     default: ensure-source-branch-contains-destination-branch
 

@@ -36249,7 +36249,7 @@ async function resolveSha({ octokit, repo, sourceBranch }) {
   const currentBranch = github_context.ref.replace("refs/heads/", "");
 
   /**
-   * NOTE: On `pull_request` events, `github.context.sha` is the SHA of an ephemeral merge commit created by GitHub, not the real HEAD of the source branch.
+   * NOTE: On `pull_request` events, `github.context.sha` is the last merge commit of the pull request merge branch, not the real HEAD of the source branch.
    * NOTE: Using it would cause a false positive - the merge commit always contains the destination branch by definition.
    * NOTE: On `push` events, `github.context.sha` is the real HEAD SHA, so the short-circuit is safe.
    * - https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request
