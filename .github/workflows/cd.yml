@@ -13,9 +13,6 @@ permissions:
   contents: read
 
 jobs:
-  ##
-  # NOTE: In order to publish to GitHub
-  #
   create_github_release:
     runs-on: ubuntu-24.04
     name: Create GitHub Release PR

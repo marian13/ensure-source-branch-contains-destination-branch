@@ -2,7 +2,6 @@
 # TODO: Clarify Marketplace guideline "repository must not contain any workflow files" — does it apply to test workflows too?
 # - https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 #
-#
 # NOTE: This workflow can NOT be run locally via `act` since it requires SSH agent forwarding to push branches to GitHub. There is not simple way to do it. At least for the moment when this workflow was created.
 # - https://github.com/nektos/act
 ##
