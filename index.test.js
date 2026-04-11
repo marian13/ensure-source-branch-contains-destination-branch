@@ -28,6 +28,7 @@ describe('GitHub Action', () => {
 
         vi.spyOn(core, 'info');
         vi.spyOn(core, 'setFailed');
+        vi.spyOn(core, 'setOutput');
         vi.spyOn(core, 'debug');
 
         github.getOctokit.mockReturnValue({
@@ -96,6 +97,12 @@ describe('GitHub Action', () => {
             expect.stringContaining("both 'main'"),
           );
         });
+
+        test('it sets status to sameBranch', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith('status', 'sameBranch');
+        });
       });
 
       describe('when compare API fails', () => {
@@ -125,6 +132,12 @@ describe('GitHub Action', () => {
           expect(core.setFailed).toHaveBeenCalledWith(
             expect.stringContaining('API error'),
           );
+        });
+
+        test('it sets status to apiError', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith('status', 'apiError');
         });
 
         describe('when ACTIONS_STEP_DEBUG is set', () => {
@@ -172,6 +185,12 @@ describe('GitHub Action', () => {
             expect.stringContaining('status: ahead'),
           );
         });
+
+        test('it sets status to ahead', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith('status', 'ahead');
+        });
       });
 
       describe('when source branch is identical to destination branch commits', () => {
@@ -199,6 +218,12 @@ describe('GitHub Action', () => {
           expect(core.info).toHaveBeenCalledWith(
             expect.stringContaining('status: identical'),
           );
+        });
+
+        test('it sets status to identical', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith('status', 'identical');
         });
       });
 
@@ -230,6 +255,12 @@ describe('GitHub Action', () => {
             expect.stringContaining('behind'),
           );
         });
+
+        test('it sets status to behind', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith('status', 'behind');
+        });
       });
 
       describe('when source branch is diverged from destination branch', () => {
@@ -260,6 +291,12 @@ describe('GitHub Action', () => {
             expect.stringContaining('diverged'),
           );
         });
+
+        test('it sets status to diverged', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith('status', 'diverged');
+        });
       });
 
       describe('when compare returns unexpected status', () => {
@@ -288,6 +325,15 @@ describe('GitHub Action', () => {
 
           expect(core.setFailed).toHaveBeenCalledWith(
             expect.stringContaining('Unexpected'),
+          );
+        });
+
+        test('it sets status to unknownStatus', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith(
+            'status',
+            'unknownStatus',
           );
         });
       });

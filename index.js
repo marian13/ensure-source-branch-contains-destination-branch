@@ -27,6 +27,8 @@ export async function main() {
   const token = core.getInput('token', { required: true });
 
   if (sourceBranch === destinationBranch) {
+    core.setOutput('status', 'sameBranch');
+
     core.info(
       `[${ACTION}] Source branch and destination branch are both '${sourceBranch}'. Nothing to check.`,
     );
@@ -51,6 +53,8 @@ export async function main() {
       basehead: `${destinationBranch}...${sha}`,
     }));
   } catch (exception) {
+    core.setOutput('status', 'apiError');
+
     core.setFailed(
       `[${ACTION}] GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}': ${exception.message}`,
     );
@@ -65,6 +69,8 @@ export async function main() {
   }
 
   if (data.status === 'ahead' || data.status === 'identical') {
+    core.setOutput('status', data.status);
+
     core.info(
       `[${ACTION}] Source branch '${sourceBranch}' contains destination branch '${destinationBranch}' (status: ${data.status}).`,
     );
@@ -73,12 +79,16 @@ export async function main() {
   }
 
   if (data.status === 'behind' || data.status === 'diverged') {
+    core.setOutput('status', data.status);
+
     core.setFailed(
       `[${ACTION}] Source branch '${sourceBranch}' must contain destination branch '${destinationBranch}' (compare status: ${data.status}). Merge or rebase '${destinationBranch}' into '${sourceBranch}'.`,
     );
 
     return;
   }
+
+  core.setOutput('status', 'unknownStatus');
 
   core.setFailed(
     `[${ACTION}] Unexpected compare status: '${data.status || ''}'.`,
@@ -92,6 +102,8 @@ export async function main() {
  */
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((exception) => {
+    core.setOutput('status', 'unexpectedException');
+
     core.setFailed(`[${ACTION}] ${exception.message}`);
 
     core.debug(exception.stack);
