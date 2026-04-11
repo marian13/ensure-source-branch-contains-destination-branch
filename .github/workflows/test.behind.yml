@@ -1,0 +1,44 @@
+name: Test (behind)
+
+on: [push, pull_request]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure git
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+
+      - name: Create destination branch one commit ahead
+        run: |
+          git checkout -b test/destination-behind-${{ github.run_id }}
+          git commit --allow-empty -m "extra commit"
+          git push origin test/destination-behind-${{ github.run_id }}
+          git checkout -
+
+      - name: Run action
+        id: check
+        continue-on-error: true
+        uses: ./
+        with:
+          source-branch: ${{ github.ref_name }}
+          destination-branch: test/destination-behind-${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Assert status is behind
+        run: |
+          if [ "${{ steps.check.outputs.status }}" != "behind" ]; then
+            echo "Expected 'behind', got '${{ steps.check.outputs.status }}'"
+            exit 1
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: git push origin --delete test/destination-behind-${{ github.run_id }}

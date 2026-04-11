@@ -1,0 +1,34 @@
+name: Test (identical)
+
+on: [push, pull_request]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create destination branch at current SHA
+        run: git push origin HEAD:refs/heads/test/destination-identical-${{ github.run_id }}
+
+      - name: Run action
+        id: check
+        uses: ./
+        with:
+          source-branch: ${{ github.ref_name }}
+          destination-branch: test/destination-identical-${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Assert status is identical
+        run: |
+          if [ "${{ steps.check.outputs.status }}" != "identical" ]; then
+            echo "Expected 'identical', got '${{ steps.check.outputs.status }}'"
+            exit 1
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: git push origin --delete test/destination-identical-${{ github.run_id }}

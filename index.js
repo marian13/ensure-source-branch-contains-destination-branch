@@ -17,7 +17,55 @@ import * as github from '@actions/github';
  */
 import { pathToFileURL } from 'url';
 
-const ACTION = 'ensure-source-branch-contains-destination-branch';
+const TAG = 'ensure-source-branch-contains-destination-branch';
+
+/**
+ * NOTE: `sha` is the full commit hash of the HEAD commit on the source branch. For example: `a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2`.
+ * - https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits#about-commits
+ * - https://github.com/actions/toolkit/blob/%40actions/github%401.1.0/packages/github/src/context.ts#L38
+ */
+async function resolveSha({ octokit, repo, sourceBranch }) {
+  const currentBranch = github.context.ref.replace('refs/heads/', '');
+
+  if (sourceBranch === currentBranch) {
+    return github.context.sha;
+  }
+
+  try {
+    const { data: ref } = await octokit.rest.git.getRef({
+      owner: repo.owner,
+      repo: repo.repo,
+      ref: `heads/${sourceBranch}`,
+    });
+
+    return ref.object.sha;
+  } catch (exception) {
+    core.debug(exception.stack);
+
+    return '';
+  }
+}
+
+async function resolveCompareApiData({
+  octokit,
+  repo,
+  destinationBranch,
+  sha,
+}) {
+  try {
+    const { data } = await octokit.rest.repos.compareCommitsWithBasehead({
+      owner: repo.owner,
+      repo: repo.repo,
+      basehead: `${destinationBranch}...${sha}`,
+    });
+
+    return data;
+  } catch (exception) {
+    core.debug(exception.stack);
+
+    return null;
+  }
+}
 
 export async function main() {
   const sourceBranch = core.getInput('source-branch', { required: true });
@@ -26,73 +74,81 @@ export async function main() {
   });
   const token = core.getInput('token', { required: true });
 
-  if (sourceBranch === destinationBranch) {
-    core.setOutput('status', 'sameBranch');
-
-    core.info(
-      `[${ACTION}] Source branch and destination branch are both '${sourceBranch}'. Nothing to check.`,
-    );
-
-    return;
-  }
-
-  /**
-   * NOTE: `sha` is the full commit hash of the HEAD commit on the source branch. For example: `a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2`.
-   * - https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits#about-commits
-   * - https://github.com/actions/toolkit/blob/%40actions/github%401.1.0/packages/github/src/context.ts#L38
-   */
-  const { repo, sha } = github.context;
-  const octokit = github.getOctokit(token);
-
-  let data;
-
   try {
-    ({ data } = await octokit.rest.repos.compareCommitsWithBasehead({
-      owner: repo.owner,
-      repo: repo.repo,
-      basehead: `${destinationBranch}...${sha}`,
-    }));
+    if (sourceBranch === destinationBranch) {
+      core.setOutput('status', 'sameBranch');
+
+      core.info(
+        `[${TAG}] Source branch and destination branch are both '${sourceBranch}'. Nothing to check.`,
+      );
+
+      return;
+    }
+
+    const { repo } = github.context;
+    const octokit = github.getOctokit(token);
+
+    const sha = await resolveSha({ octokit, repo, sourceBranch });
+
+    if (!sha) {
+      core.setOutput('status', 'shaApiError');
+
+      core.setFailed(
+        `[${TAG}] Failed to resolve SHA for source branch '${sourceBranch}'.`,
+      );
+
+      return;
+    }
+
+    const data = await resolveCompareApiData({
+      octokit,
+      repo,
+      destinationBranch,
+      sha,
+    });
+
+    if (!data) {
+      core.setOutput('status', 'compareApiError');
+
+      core.setFailed(
+        `[${TAG}] GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}'.`,
+      );
+
+      return;
+    }
+
+    if (data.status === 'ahead' || data.status === 'identical') {
+      core.setOutput('status', data.status);
+
+      core.info(
+        `[${TAG}] Source branch '${sourceBranch}' contains destination branch '${destinationBranch}' (status: ${data.status}).`,
+      );
+
+      return;
+    }
+
+    if (data.status === 'behind' || data.status === 'diverged') {
+      core.setOutput('status', data.status);
+
+      core.setFailed(
+        `[${TAG}] Source branch '${sourceBranch}' must contain destination branch '${destinationBranch}' (compare status: ${data.status}). Merge or rebase '${destinationBranch}' into '${sourceBranch}'.`,
+      );
+
+      return;
+    }
+
+    core.setOutput('status', 'unknownStatus');
+
+    core.setFailed(
+      `[${TAG}] Unexpected compare status: '${data.status || ''}'.`,
+    );
   } catch (exception) {
-    core.setOutput('status', 'compareApiError');
+    core.setOutput('status', 'unexpectedException');
 
-    core.setFailed(
-      `[${ACTION}] GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}': ${exception.message}`,
-    );
+    core.setFailed(`[${TAG}] ${exception.message}`);
 
-    /**
-     * NOTE: Use `ACTIONS_RUNNER_DEBUG` to enable debug logs.
-     * - https://docs.github.com/en/actions/how-tos/monitor-workflows/enable-debug-logging#enabling-runner-diagnostic-logging
-     */
     core.debug(exception.stack);
-
-    return;
   }
-
-  if (data.status === 'ahead' || data.status === 'identical') {
-    core.setOutput('status', data.status);
-
-    core.info(
-      `[${ACTION}] Source branch '${sourceBranch}' contains destination branch '${destinationBranch}' (status: ${data.status}).`,
-    );
-
-    return;
-  }
-
-  if (data.status === 'behind' || data.status === 'diverged') {
-    core.setOutput('status', data.status);
-
-    core.setFailed(
-      `[${ACTION}] Source branch '${sourceBranch}' must contain destination branch '${destinationBranch}' (compare status: ${data.status}). Merge or rebase '${destinationBranch}' into '${sourceBranch}'.`,
-    );
-
-    return;
-  }
-
-  core.setOutput('status', 'unknownStatus');
-
-  core.setFailed(
-    `[${ACTION}] Unexpected compare status: '${data.status || ''}'.`,
-  );
 }
 
 /**
@@ -101,11 +157,5 @@ export async function main() {
  * - https://stackoverflow.com/a/68848622/12201472
  */
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((exception) => {
-    core.setOutput('status', 'unexpectedException');
-
-    core.setFailed(`[${ACTION}] ${exception.message}`);
-
-    core.debug(exception.stack);
-  });
+  main();
 }

@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "build": "ncc build index.js --license licenses.txt -o dist",
-    "lint": "eslint .",
+    "lint": "npm run lint:prettier && npm run lint:eslint",
+    "lint:eslint": "eslint .",
+    "lint:prettier": "prettier --check .",
     "format": "prettier --write .",
     "test": "vitest run",
     "postinstall": "[ \"$CI\" = \"true\" ] || npx simple-git-hooks"

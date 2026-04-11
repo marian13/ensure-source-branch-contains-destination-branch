@@ -53,9 +53,9 @@ steps:
 
 ## Outputs
 
-| Output   | Description                      | Possible values                                                                                                     |
-| -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `status` | Result of the branch comparison. | `sameBranch`, `ahead`, `identical`, `behind`, `diverged`, `compareApiError`, `unknownStatus`, `unexpectedException` |
+| Output   | Description                      | Possible values                                                                                                                    |
+| -------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `status` | Result of the branch comparison. | `sameBranch`, `ahead`, `identical`, `behind`, `diverged`, `shaApiError`, `compareApiError`, `unknownStatus`, `unexpectedException` |
 
 Example of how to read the status in a subsequent step:
 

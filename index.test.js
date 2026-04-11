@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 vi.mock('@actions/github', () => ({
   context: {
     repo: { owner: 'marian13', repo: 'convenient_service' },
+    ref: 'refs/heads/feature/callbacks',
     sha: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
   },
   getOctokit: vi.fn(),
@@ -105,6 +106,37 @@ describe('GitHub Action', () => {
         });
       });
 
+      describe('when SHA API fails', () => {
+        beforeEach(() => {
+          github.getOctokit.mockReturnValue({
+            rest: {
+              git: {
+                getRef: vi.fn().mockRejectedValue(new Error('API error')),
+              },
+              repos: {
+                compareCommitsWithBasehead: vi.fn(),
+              },
+            },
+          });
+
+          process.env['INPUT_SOURCE-BRANCH'] = 'feature/other-branch';
+        });
+
+        test('it fails', async () => {
+          await main();
+
+          expect(core.setFailed).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] Failed to resolve SHA for source branch 'feature/other-branch'.",
+          );
+        });
+
+        test('it sets status to shaApiError', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith('status', 'shaApiError');
+        });
+      });
+
       describe('when compare API fails', () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
@@ -122,7 +154,7 @@ describe('GitHub Action', () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
-            "[ensure-source-branch-contains-destination-branch] GitHub Compare API call failed for 'feature/callbacks...main': API error",
+            "[ensure-source-branch-contains-destination-branch] GitHub Compare API call failed for 'feature/callbacks...main'.",
           );
         });
 
@@ -130,7 +162,7 @@ describe('GitHub Action', () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
-            expect.stringContaining('API error'),
+            expect.stringContaining('GitHub Compare API call failed'),
           );
         });
 
@@ -349,7 +381,20 @@ describe('GitHub Action', () => {
         });
 
         test('it fails', async () => {
-          await expect(main()).rejects.toThrow('Unexpected error');
+          await main();
+
+          expect(core.setFailed).toHaveBeenCalledWith(
+            expect.stringContaining('Unexpected error'),
+          );
+        });
+
+        test('it sets status to unexpectedException', async () => {
+          await main();
+
+          expect(core.setOutput).toHaveBeenCalledWith(
+            'status',
+            'unexpectedException',
+          );
         });
 
         describe('when ACTIONS_STEP_DEBUG is set', () => {
@@ -362,9 +407,11 @@ describe('GitHub Action', () => {
           });
 
           test('it logs exception stack trace', async () => {
-            await expect(main()).rejects.toThrow('Unexpected error');
+            await main();
 
-            expect(core.debug).not.toHaveBeenCalled();
+            expect(core.debug).toHaveBeenCalledWith(
+              expect.stringContaining('Error: Unexpected error'),
+            );
           });
         });
       });

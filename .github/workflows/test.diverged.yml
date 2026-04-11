@@ -1,0 +1,46 @@
+name: Test (diverged)
+
+on: [push, pull_request]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+
+      - name: Create diverged destination branch
+        run: |
+          git checkout -b test/destination-diverged-${{ github.run_id }} HEAD^
+          git commit --allow-empty -m "diverged commit"
+          git push origin test/destination-diverged-${{ github.run_id }}
+          git checkout -
+
+      - name: Run action
+        id: check
+        continue-on-error: true
+        uses: ./
+        with:
+          source-branch: ${{ github.ref_name }}
+          destination-branch: test/destination-diverged-${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Assert status is diverged
+        run: |
+          if [ "${{ steps.check.outputs.status }}" != "diverged" ]; then
+            echo "Expected 'diverged', got '${{ steps.check.outputs.status }}'"
+            exit 1
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: git push origin --delete test/destination-diverged-${{ github.run_id }}
