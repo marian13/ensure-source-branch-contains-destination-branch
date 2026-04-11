@@ -21,8 +21,10 @@
     "@actions/github": "^9.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vercel/ncc": "^0.38.4",
     "eslint": "^10.2.0",
+    "globals": "^17.4.0",
     "eslint-plugin-vitest": "^0.5.4",
     "prettier": "^3.8.2",
     "simple-git-hooks": "^2.13.1",
