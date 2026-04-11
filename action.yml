@@ -2,6 +2,10 @@ name: Ensure Source Contains Destination Branch
 description: Verifies that the source branch contains all commits from the destination branch (e.g. main), preventing out-of-date merges.
 
 inputs:
+  source-branch:
+    description: The branch to check (defaults to the branch that triggered the workflow).
+    required: false
+    default: ${{ github.ref_name }}
   destination-branch:
     description: The branch that must be contained in the source branch (defaults to the repo default branch).
     required: false
@@ -12,37 +16,5 @@ inputs:
     default: ${{ github.token }}
 
 runs:
-  using: composite
-  steps:
-    - name: Ensure source branch contains destination branch
-      shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.token }}
-        DESTINATION_BRANCH: ${{ inputs.destination-branch }}
-        SOURCE_BRANCH: ${{ github.ref_name }}
-      run: |
-        COMPARE_JSON="$(curl -fsS \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          -H "Accept: application/vnd.github+json" \
-          "https://api.github.com/repos/${GITHUB_REPOSITORY}/compare/${DESTINATION_BRANCH}...${GITHUB_SHA}")" || true
-
-        STATUS="$(jq -r '.status' <<< "${COMPARE_JSON}" 2>/dev/null)" || STATUS="error"
-
-        case "${STATUS}" in
-          ahead|identical)
-            echo "✅ Source branch '${SOURCE_BRANCH}' contains destination branch '${DESTINATION_BRANCH}' (status: ${STATUS})."
-            exit 0
-            ;;
-          behind|diverged)
-            echo "::error::Source branch '${SOURCE_BRANCH}' must contain destination branch '${DESTINATION_BRANCH}' (compare status: ${STATUS}). Merge or rebase '${DESTINATION_BRANCH}' into '${SOURCE_BRANCH}'."
-            exit 1
-            ;;
-          ""|error)
-            echo "::error::GitHub Compare API response was invalid or incomplete."
-            exit 1
-            ;;
-          *)
-            echo "::error::Unexpected compare status: ${STATUS}"
-            exit 1
-            ;;
-        esac
+  using: node20
+  main: dist/index.js

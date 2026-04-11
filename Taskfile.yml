@@ -4,6 +4,17 @@ tasks:
   install:
     cmds:
       - brew install act
+      - npm install
+
+  build:
+    desc: Bundle index.js into dist/ using ncc.
+    cmds:
+      - npm run build
+
+  test:unit:
+    desc: Run unit tests.
+    cmds:
+      - npm test
 
   test:integration:
     desc: Run all integration tests.
