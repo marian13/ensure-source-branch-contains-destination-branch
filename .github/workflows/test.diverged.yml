@@ -13,7 +13,6 @@ on: [push, pull_request]
 
 permissions:
   contents: write
-  workflows: write
 
 jobs:
   test:
