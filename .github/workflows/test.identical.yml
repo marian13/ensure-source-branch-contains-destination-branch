@@ -53,4 +53,4 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: git push origin --delete $DESTINATION_BRANCH
+        run: git push origin --delete $DESTINATION_BRANCH || true

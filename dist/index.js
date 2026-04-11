@@ -36275,6 +36275,14 @@ async function resolveSha({ octokit, repo, sourceBranch }) {
   }
 }
 
+/**
+ * NOTE: Calls the GitHub Compare API to determine the relationship between the destination branch and the source SHA.
+ * NOTE: The basehead format is `base...head`, where `destinationBranch` is the base and `sha` is the head.
+ * NOTE: `ahead` means the source SHA has commits not in the destination — i.e. source contains destination. This is the passing case.
+ * NOTE: `behind` means the destination has commits not in the source — i.e. source is missing commits. This is the failing case.
+ * NOTE: Returns the response data object on success, or `{}` on failure (the natural empty value for an object return type).
+ * - https://docs.github.com/en/rest/commits/commits?apiVersion=2026-03-10#compare-two-commits
+ */
 async function resolveCompareApiData({
   octokit,
   repo,
