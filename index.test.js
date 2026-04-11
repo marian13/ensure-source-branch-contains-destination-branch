@@ -155,6 +155,24 @@ describe("GitHub Action", () => {
 
           expect(core.setOutput).toHaveBeenCalledWith("status", "shaApiError");
         });
+
+        describe("when ACTIONS_STEP_DEBUG is set", () => {
+          beforeEach(() => {
+            process.env["ACTIONS_STEP_DEBUG"] = "true";
+          });
+
+          afterEach(() => {
+            delete process.env["ACTIONS_STEP_DEBUG"];
+          });
+
+          test("it logs exception stack trace", async () => {
+            await main();
+
+            expect(core.debug).toHaveBeenCalledWith(
+              expect.stringContaining("Error: API error"),
+            );
+          });
+        });
       });
 
       describe("when event is pull_request", () => {
