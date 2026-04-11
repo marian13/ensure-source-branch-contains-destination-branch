@@ -29,6 +29,10 @@ jobs:
       - name: Set destination branch
         run: echo "DESTINATION_BRANCH=test/destination-ahead-${{ github.run_id }}" >> $GITHUB_ENV
 
+      ##
+      # NOTE: `git push origin HEAD^:...` pushes the previous commit to a new branch. This requires only `contents: write` as long as `HEAD^` does not introduce new or modified workflow files compared to what is already on GitHub.
+      # NOTE: If the previous commit modifies `.github/workflows/`, GitHub will reject the push with a permission error. In that case, push a follow-up commit without workflow file changes to re-trigger this workflow.
+      #
       - name: Create destination branch with one commit behind
         run: git push origin HEAD^:refs/heads/$DESTINATION_BRANCH
 
