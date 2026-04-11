@@ -22,7 +22,8 @@ jobs:
       # NOTE: `fetch-depth: 0` fetches the full git history. Required here because `HEAD^` must exist to push the previous commit as a destination branch.
       # - https://github.com/actions/checkout?tab=readme-ov-file#usage
       #
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

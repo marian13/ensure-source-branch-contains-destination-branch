@@ -22,7 +22,8 @@ jobs:
       # NOTE: `fetch-depth: 0` is not needed here — the destination branch is created by pushing HEAD itself, so no prior history is required.
       # - https://github.com/actions/checkout?tab=readme-ov-file#usage
       #
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
 
       ##
       # NOTE: `>> $GITHUB_ENV` sets an environment variable that persists across all subsequent steps in the job.

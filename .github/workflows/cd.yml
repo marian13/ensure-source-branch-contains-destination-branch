@@ -20,7 +20,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - id: release
+      - name: Create release PR
+        id: release
         uses: googleapis/release-please-action@v4
         with:
           changelog-path: CHANGELOG.md
@@ -34,7 +35,8 @@ jobs:
       # NOTE: Checkout is required to push the updated floating tag back to the remote.
       # NOTE: The floating `v1` tag always points to the latest `1.x` release, so users pinned to `@v1` get updates automatically.
       #
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
         if: ${{ steps.release.outputs.release_created }}
 
       - name: Update floating v1 tag
