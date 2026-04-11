@@ -1,0 +1,34 @@
+##
+# TODO: "Each repository must not contain any workflow files." - This guideline is unclear, how test workflow can be run by end-user? Does this mean custom GitHub Action literally can NOT contain workflow files just for its ownn testign purposes?
+# - https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
+#
+#
+# NOTE: This workflow can NOT be run locally via `act` since it requires SSH agent forwarding to push branches to GitHub. There is not simple way to do it. At least for the moment when this workflow was created.
+# - https://github.com/nektos/act
+##
+
+name: Test (sameBranch)
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run action
+        id: check
+        uses: ./
+        with:
+          source-branch: ${{ github.ref_name }}
+          destination-branch: ${{ github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Assert status is sameBranch
+        run: |
+          if [ "${{ steps.check.outputs.status }}" != "sameBranch" ]; then
+            echo "Expected 'sameBranch', got '${{ steps.check.outputs.status }}'"
+
+            exit 1
+          fi
