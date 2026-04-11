@@ -191,6 +191,22 @@ describe("GitHub Action", () => {
           );
         });
 
+        test("it logs resolved SHA", async () => {
+          await main();
+
+          expect(core.debug).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] Resolved SHA for 'feature/callbacks': b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3.",
+          );
+        });
+
+        test("it logs basehead string", async () => {
+          await main();
+
+          expect(core.debug).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] Comparing 'main...b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3'.",
+          );
+        });
+
         test("it does not use context.sha", async () => {
           await main();
 
