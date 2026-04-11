@@ -31,6 +31,7 @@ describe("GitHub Action", () => {
         vi.spyOn(core, "info");
         vi.spyOn(core, "setFailed");
         vi.spyOn(core, "setOutput");
+        vi.spyOn(core, "setSecret");
         vi.spyOn(core, "debug");
 
         github.getOctokit.mockReturnValue({
@@ -77,6 +78,16 @@ describe("GitHub Action", () => {
 
         test("it fails", async () => {
           await expect(main()).rejects.toThrow("token");
+        });
+      });
+
+      describe("when token is passed", () => {
+        test("it masks the token", async () => {
+          await main();
+
+          expect(core.setSecret).toHaveBeenCalledWith(
+            "ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890",
+          );
         });
       });
 
@@ -155,7 +166,7 @@ describe("GitHub Action", () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(
-            "[ensure-source-branch-contains-destination-branch] GitHub Compare API call failed for 'feature/callbacks...main'.",
+            "[ensure-source-branch-contains-destination-branch] GitHub Compare API call failed for 'main...feature/callbacks'.",
           );
         });
 
@@ -226,6 +237,22 @@ describe("GitHub Action", () => {
           await main();
 
           expect(core.setOutput).toHaveBeenCalledWith("status", "ahead");
+        });
+
+        test("it logs resolved SHA", async () => {
+          await main();
+
+          expect(core.debug).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] Resolved SHA for 'feature/callbacks': a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2.",
+          );
+        });
+
+        test("it logs basehead string", async () => {
+          await main();
+
+          expect(core.debug).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] Comparing 'main...a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2'.",
+          );
         });
       });
 

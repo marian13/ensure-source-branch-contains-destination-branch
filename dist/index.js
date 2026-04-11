@@ -60384,6 +60384,13 @@ async function main() {
   const token = core.getInput("token", { required: true });
   const tag = core.getInput("tag");
 
+  /**
+   * NOTE: `core.setSecret` masks the token in all subsequent log output.
+   * NOTE: GitHub Actions only auto-masks values from `secrets` context. Tokens passed as plain inputs (e.g. a PAT) would otherwise be logged in plain text.
+   * - https://github.com/actions/toolkit/tree/main/packages/core#setting-a-secret
+   */
+  core.setSecret(token);
+
   try {
     if (sourceBranch === destinationBranch) {
       core.setOutput("status", "sameBranch");
@@ -60416,6 +60423,9 @@ async function main() {
       return;
     }
 
+    core.debug(prependTag(tag, `Resolved SHA for '${sourceBranch}': ${sha}.`));
+    core.debug(prependTag(tag, `Comparing '${destinationBranch}...${sha}'.`));
+
     const data = await resolveCompareApiData({
       octokit,
       repo,
@@ -60429,7 +60439,7 @@ async function main() {
       core.setFailed(
         prependTag(
           tag,
-          `GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}'.`,
+          `GitHub Compare API call failed for '${destinationBranch}...${sourceBranch}'.`,
         ),
       );
 

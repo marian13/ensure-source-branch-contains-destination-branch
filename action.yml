@@ -19,6 +19,10 @@ inputs:
     required: false
     default: ensure-source-branch-contains-destination-branch
 
+outputs:
+  status:
+    description: Result of the branch comparison (sameBranch, ahead, identical, behind, diverged, shaApiError, compareApiError, unknownStatus, unexpectedException).
+
 runs:
-  using: node20
+  using: node22
   main: dist/index.js
