@@ -38,6 +38,7 @@ jobs:
       ##
       # NOTE: `git checkout -` switches back to previous branch.
       # NOTE: `HEAD^` requires at least two commits in the repo. This is not a practical concern — it would only fail if all existing commits were squashed into one, which is an unusual destructive operation on an active repo.
+      # IMPORTANT: `git push origin $DESTINATION_BRANCH` pushes a branch created from `HEAD^`. This requires only `contents: write` as long as `HEAD^` does not introduce new or modified workflow files compared to what is already on GitHub. If it does, GitHub will reject the push with a permission error. In that case, push a follow-up commit without workflow file changes to re-trigger this workflow.
       # - https://stackoverflow.com/a/56770029/12201472
       # - https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-branch
       #
