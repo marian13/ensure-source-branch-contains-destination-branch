@@ -13,6 +13,9 @@ permissions:
   contents: read
 
 jobs:
+  ##
+  # NOTE: In order to publish to GitHub
+  #
   create_github_release:
     runs-on: ubuntu-24.04
     name: Create GitHub Release PR
@@ -20,7 +23,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: google-github-actions/release-please-action@v3
+      - uses: googleapis/release-please-action@v4
         with:
           changelog-path: CHANGELOG.md
           default-branch: main

@@ -19,7 +19,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       ##
       # NOTE: `>> $GITHUB_ENV` sets an environment variable that persists across all subsequent steps in the job.

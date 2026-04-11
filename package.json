@@ -13,13 +13,16 @@
     "test": "vitest run",
     "postinstall": "[ \"$CI\" = \"true\" ] || npx simple-git-hooks"
   },
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^3.0.0",
     "@actions/github": "^9.1.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.3",
-    "eslint": "^8.57.1",
+    "@vercel/ncc": "^0.38.4",
+    "eslint": "^10.2.0",
     "eslint-plugin-vitest": "^0.5.4",
     "prettier": "^3.8.2",
     "simple-git-hooks": "^2.13.1",
