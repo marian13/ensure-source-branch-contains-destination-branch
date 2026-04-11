@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "postinstall": "node -e \"if (!process.env.CI) require('child_process').execSync('npx simple-git-hooks', {stdio: 'inherit'})\""
+    "postinstall": "[ \"$CI\" = \"true\" ] || npx simple-git-hooks"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
