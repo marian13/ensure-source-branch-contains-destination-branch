@@ -10,9 +10,7 @@
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier --check .",
     "format": "prettier --write .",
-    "test": "npm run test:unit && npm run test:integration",
-    "test:unit": "vitest run",
-    "test:integration": "act # Does not work since it is not clear how to forward SSH",
+    "test": "vitest run",
     "postinstall": "[ \"$CI\" = \"true\" ] || npx simple-git-hooks"
   },
   "dependencies": {
@@ -28,6 +26,6 @@
     "vitest": "^4.1.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm run format && npm run lint && npm run test:unit && npm run build && git add -u"
+    "pre-commit": "npm run format && npm run lint && npm test && npm run build && git add -u"
   }
 }

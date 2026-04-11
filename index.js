@@ -61,7 +61,7 @@ async function resolveCompareApiData({
   } catch (exception) {
     core.debug(exception.stack);
 
-    return null;
+    return {};
   }
 }
 
@@ -120,7 +120,7 @@ export async function main() {
       sha,
     });
 
-    if (!data) {
+    if (!data.status) {
       core.setOutput("status", "compareApiError");
 
       core.setFailed(
@@ -158,9 +158,7 @@ export async function main() {
 
     core.setOutput("status", "unknownStatus");
 
-    core.setFailed(
-      toMessage(`Unexpected compare status: '${data.status || ""}'.`),
-    );
+    core.setFailed(toMessage(`Unexpected compare status: '${data.status}'.`));
   } catch (exception) {
     core.setOutput("status", "unexpectedException");
 
