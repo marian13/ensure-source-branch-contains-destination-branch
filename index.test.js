@@ -18,7 +18,7 @@ describe('GitHub Action', () => {
       const ENV = {
         'INPUT_SOURCE-BRANCH': 'feature/callbacks',
         'INPUT_DESTINATION-BRANCH': 'main',
-        'INPUT_TOKEN': 'ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890',
+        INPUT_TOKEN: 'ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890',
       };
 
       beforeEach(() => {
@@ -92,27 +92,39 @@ describe('GitHub Action', () => {
         test('it logs info message', async () => {
           await main();
 
-          expect(core.info).toHaveBeenCalledWith(expect.stringContaining("both 'main'"));
+          expect(core.info).toHaveBeenCalledWith(
+            expect.stringContaining("both 'main'"),
+          );
         });
       });
 
       describe('when compare API fails', () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
-            rest: { repos: { compareCommitsWithBasehead: vi.fn().mockRejectedValue(new Error('API error')) } },
+            rest: {
+              repos: {
+                compareCommitsWithBasehead: vi
+                  .fn()
+                  .mockRejectedValue(new Error('API error')),
+              },
+            },
           });
         });
 
         test('it fails', async () => {
           await main();
 
-          expect(core.setFailed).toHaveBeenCalledWith("[ensure-source-branch-contains-destination-branch] GitHub Compare API call failed for 'feature/callbacks...main': API error");
+          expect(core.setFailed).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] GitHub Compare API call failed for 'feature/callbacks...main': API error",
+          );
         });
 
         test('it fails with message', async () => {
           await main();
 
-          expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('API error'));
+          expect(core.setFailed).toHaveBeenCalledWith(
+            expect.stringContaining('API error'),
+          );
         });
 
         describe('when ACTIONS_STEP_DEBUG is set', () => {
@@ -127,7 +139,9 @@ describe('GitHub Action', () => {
           test('it logs exception stack trace', async () => {
             await main();
 
-            expect(core.debug).toHaveBeenCalledWith(expect.stringContaining('Error: API error'));
+            expect(core.debug).toHaveBeenCalledWith(
+              expect.stringContaining('Error: API error'),
+            );
           });
         });
       });
@@ -135,7 +149,13 @@ describe('GitHub Action', () => {
       describe('when source branch is ahead of destination branch', () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
-            rest: { repos: { compareCommitsWithBasehead: vi.fn().mockResolvedValue({ data: { status: 'ahead' } }) } },
+            rest: {
+              repos: {
+                compareCommitsWithBasehead: vi
+                  .fn()
+                  .mockResolvedValue({ data: { status: 'ahead' } }),
+              },
+            },
           });
         });
 
@@ -148,14 +168,22 @@ describe('GitHub Action', () => {
         test('it logs info message', async () => {
           await main();
 
-          expect(core.info).toHaveBeenCalledWith(expect.stringContaining('status: ahead'));
+          expect(core.info).toHaveBeenCalledWith(
+            expect.stringContaining('status: ahead'),
+          );
         });
       });
 
       describe('when source branch is identical to destination branch commits', () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
-            rest: { repos: { compareCommitsWithBasehead: vi.fn().mockResolvedValue({ data: { status: 'identical' } }) } },
+            rest: {
+              repos: {
+                compareCommitsWithBasehead: vi
+                  .fn()
+                  .mockResolvedValue({ data: { status: 'identical' } }),
+              },
+            },
           });
         });
 
@@ -168,67 +196,99 @@ describe('GitHub Action', () => {
         test('it logs info message', async () => {
           await main();
 
-          expect(core.info).toHaveBeenCalledWith(expect.stringContaining('status: identical'));
+          expect(core.info).toHaveBeenCalledWith(
+            expect.stringContaining('status: identical'),
+          );
         });
       });
 
       describe('when source branch is behind destination branch', () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
-            rest: { repos: { compareCommitsWithBasehead: vi.fn().mockResolvedValue({ data: { status: 'behind' } }) } },
+            rest: {
+              repos: {
+                compareCommitsWithBasehead: vi
+                  .fn()
+                  .mockResolvedValue({ data: { status: 'behind' } }),
+              },
+            },
           });
         });
 
         test('it fails', async () => {
           await main();
 
-          expect(core.setFailed).toHaveBeenCalledWith("[ensure-source-branch-contains-destination-branch] Source branch 'feature/callbacks' must contain destination branch 'main' (compare status: behind). Merge or rebase 'main' into 'feature/callbacks'.");
+          expect(core.setFailed).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] Source branch 'feature/callbacks' must contain destination branch 'main' (compare status: behind). Merge or rebase 'main' into 'feature/callbacks'.",
+          );
         });
 
         test('it fails with message', async () => {
           await main();
 
-          expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('behind'));
+          expect(core.setFailed).toHaveBeenCalledWith(
+            expect.stringContaining('behind'),
+          );
         });
       });
 
       describe('when source branch is diverged from destination branch', () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
-            rest: { repos: { compareCommitsWithBasehead: vi.fn().mockResolvedValue({ data: { status: 'diverged' } }) } },
+            rest: {
+              repos: {
+                compareCommitsWithBasehead: vi
+                  .fn()
+                  .mockResolvedValue({ data: { status: 'diverged' } }),
+              },
+            },
           });
         });
 
         test('it fails', async () => {
           await main();
 
-          expect(core.setFailed).toHaveBeenCalledWith("[ensure-source-branch-contains-destination-branch] Source branch 'feature/callbacks' must contain destination branch 'main' (compare status: diverged). Merge or rebase 'main' into 'feature/callbacks'.");
+          expect(core.setFailed).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] Source branch 'feature/callbacks' must contain destination branch 'main' (compare status: diverged). Merge or rebase 'main' into 'feature/callbacks'.",
+          );
         });
 
         test('it fails with message', async () => {
           await main();
 
-          expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('diverged'));
+          expect(core.setFailed).toHaveBeenCalledWith(
+            expect.stringContaining('diverged'),
+          );
         });
       });
 
       describe('when compare returns unexpected status', () => {
         beforeEach(() => {
           github.getOctokit.mockReturnValue({
-            rest: { repos: { compareCommitsWithBasehead: vi.fn().mockResolvedValue({ data: { status: 'unknown' } }) } },
+            rest: {
+              repos: {
+                compareCommitsWithBasehead: vi
+                  .fn()
+                  .mockResolvedValue({ data: { status: 'unknown' } }),
+              },
+            },
           });
         });
 
         test('it fails', async () => {
           await main();
 
-          expect(core.setFailed).toHaveBeenCalledWith("[ensure-source-branch-contains-destination-branch] Unexpected compare status: 'unknown'.");
+          expect(core.setFailed).toHaveBeenCalledWith(
+            "[ensure-source-branch-contains-destination-branch] Unexpected compare status: 'unknown'.",
+          );
         });
 
         test('it fails with message', async () => {
           await main();
 
-          expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Unexpected'));
+          expect(core.setFailed).toHaveBeenCalledWith(
+            expect.stringContaining('Unexpected'),
+          );
         });
       });
 

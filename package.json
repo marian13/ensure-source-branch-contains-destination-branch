@@ -6,6 +6,8 @@
   "main": "index.js",
   "scripts": {
     "build": "ncc build index.js --license licenses.txt -o dist",
+    "lint": "eslint .",
+    "format": "prettier --write .",
     "test": "vitest run"
   },
   "dependencies": {
@@ -14,10 +16,13 @@
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.3",
+    "eslint": "^8.57.1",
+    "eslint-plugin-vitest": "^0.5.4",
+    "prettier": "^3.8.2",
     "simple-git-hooks": "^2.13.1",
     "vitest": "^4.1.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "npm run build"
+    "pre-commit": "npm run build && git add dist"
   }
 }

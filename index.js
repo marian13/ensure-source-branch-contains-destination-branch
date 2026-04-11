@@ -21,11 +21,15 @@ const ACTION = 'ensure-source-branch-contains-destination-branch';
 
 export async function main() {
   const sourceBranch = core.getInput('source-branch', { required: true });
-  const destinationBranch = core.getInput('destination-branch', { required: true });
+  const destinationBranch = core.getInput('destination-branch', {
+    required: true,
+  });
   const token = core.getInput('token', { required: true });
 
   if (sourceBranch === destinationBranch) {
-    core.info(`[${ACTION}] Source branch and destination branch are both '${sourceBranch}'. Nothing to check.`);
+    core.info(
+      `[${ACTION}] Source branch and destination branch are both '${sourceBranch}'. Nothing to check.`,
+    );
 
     return;
   }
@@ -47,7 +51,9 @@ export async function main() {
       basehead: `${destinationBranch}...${sha}`,
     }));
   } catch (exception) {
-    core.setFailed(`[${ACTION}] GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}': ${exception.message}`);
+    core.setFailed(
+      `[${ACTION}] GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}': ${exception.message}`,
+    );
 
     /**
      * NOTE: Use `ACTIONS_RUNNER_DEBUG` to enable debug logs.
@@ -59,18 +65,24 @@ export async function main() {
   }
 
   if (data.status === 'ahead' || data.status === 'identical') {
-    core.info(`[${ACTION}] Source branch '${sourceBranch}' contains destination branch '${destinationBranch}' (status: ${data.status}).`);
+    core.info(
+      `[${ACTION}] Source branch '${sourceBranch}' contains destination branch '${destinationBranch}' (status: ${data.status}).`,
+    );
 
     return;
   }
 
   if (data.status === 'behind' || data.status === 'diverged') {
-    core.setFailed(`[${ACTION}] Source branch '${sourceBranch}' must contain destination branch '${destinationBranch}' (compare status: ${data.status}). Merge or rebase '${destinationBranch}' into '${sourceBranch}'.`);
+    core.setFailed(
+      `[${ACTION}] Source branch '${sourceBranch}' must contain destination branch '${destinationBranch}' (compare status: ${data.status}). Merge or rebase '${destinationBranch}' into '${sourceBranch}'.`,
+    );
 
     return;
   }
 
-  core.setFailed(`[${ACTION}] Unexpected compare status: '${data.status || ''}'.`);
+  core.setFailed(
+    `[${ACTION}] Unexpected compare status: '${data.status || ''}'.`,
+  );
 }
 
 /**
