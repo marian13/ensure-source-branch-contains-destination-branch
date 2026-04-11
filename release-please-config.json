@@ -2,6 +2,7 @@
   "release-type": "node",
   "include-v-in-tag": true,
   "changelog-path": "CHANGELOG.md",
+  "bootstrap-sha": "909095f407d583b707e34e3508f36223a993f3f8",
   "packages": {
     ".": {}
   }
