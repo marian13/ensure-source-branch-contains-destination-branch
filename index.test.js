@@ -20,6 +20,7 @@ describe('GitHub Action', () => {
         'INPUT_SOURCE-BRANCH': 'feature/callbacks',
         'INPUT_DESTINATION-BRANCH': 'main',
         INPUT_TOKEN: 'ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890',
+        INPUT_TAG: 'ensure-source-branch-contains-destination-branch',
       };
 
       beforeEach(() => {
@@ -413,6 +414,34 @@ describe('GitHub Action', () => {
               expect.stringContaining('Error: Unexpected error'),
             );
           });
+        });
+      });
+
+      describe('when tag is custom', () => {
+        beforeEach(() => {
+          process.env['INPUT_TAG'] = 'my-custom-tag';
+        });
+
+        test('it prepends custom tag to log messages', async () => {
+          await main();
+
+          expect(core.info).toHaveBeenCalledWith(
+            expect.stringContaining('[my-custom-tag]'),
+          );
+        });
+      });
+
+      describe('when tag is empty', () => {
+        beforeEach(() => {
+          process.env['INPUT_TAG'] = '';
+        });
+
+        test('it logs messages without a tag', async () => {
+          await main();
+
+          expect(core.info).toHaveBeenCalledWith(
+            expect.not.stringContaining('['),
+          );
         });
       });
     });

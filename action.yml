@@ -14,6 +14,10 @@ inputs:
     description: GitHub token used to call the Compare API.
     required: false
     default: ${{ github.token }}
+  tag:
+    description: Tag prepended to log messages (e.g. "[my-tag] message"). Omit to log without a tag.
+    required: false
+    default: ensure-source-branch-contains-destination-branch
 
 runs:
   using: node20

@@ -17,7 +17,9 @@ import * as github from '@actions/github';
  */
 import { pathToFileURL } from 'url';
 
-const TAG = 'ensure-source-branch-contains-destination-branch';
+function prependTag(tag, message) {
+  return tag ? `[${tag}] ${message}` : message;
+}
 
 /**
  * NOTE: `sha` is the full commit hash of the HEAD commit on the source branch. For example: `a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2`.
@@ -73,13 +75,17 @@ export async function main() {
     required: true,
   });
   const token = core.getInput('token', { required: true });
+  const tag = core.getInput('tag');
 
   try {
     if (sourceBranch === destinationBranch) {
       core.setOutput('status', 'sameBranch');
 
       core.info(
-        `[${TAG}] Source branch and destination branch are both '${sourceBranch}'. Nothing to check.`,
+        prependTag(
+          tag,
+          `Source branch and destination branch are both '${sourceBranch}'. Nothing to check.`,
+        ),
       );
 
       return;
@@ -94,7 +100,10 @@ export async function main() {
       core.setOutput('status', 'shaApiError');
 
       core.setFailed(
-        `[${TAG}] Failed to resolve SHA for source branch '${sourceBranch}'.`,
+        prependTag(
+          tag,
+          `Failed to resolve SHA for source branch '${sourceBranch}'.`,
+        ),
       );
 
       return;
@@ -111,7 +120,10 @@ export async function main() {
       core.setOutput('status', 'compareApiError');
 
       core.setFailed(
-        `[${TAG}] GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}'.`,
+        prependTag(
+          tag,
+          `GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}'.`,
+        ),
       );
 
       return;
@@ -121,7 +133,10 @@ export async function main() {
       core.setOutput('status', data.status);
 
       core.info(
-        `[${TAG}] Source branch '${sourceBranch}' contains destination branch '${destinationBranch}' (status: ${data.status}).`,
+        prependTag(
+          tag,
+          `Source branch '${sourceBranch}' contains destination branch '${destinationBranch}' (status: ${data.status}).`,
+        ),
       );
 
       return;
@@ -131,7 +146,10 @@ export async function main() {
       core.setOutput('status', data.status);
 
       core.setFailed(
-        `[${TAG}] Source branch '${sourceBranch}' must contain destination branch '${destinationBranch}' (compare status: ${data.status}). Merge or rebase '${destinationBranch}' into '${sourceBranch}'.`,
+        prependTag(
+          tag,
+          `Source branch '${sourceBranch}' must contain destination branch '${destinationBranch}' (compare status: ${data.status}). Merge or rebase '${destinationBranch}' into '${sourceBranch}'.`,
+        ),
       );
 
       return;
@@ -140,12 +158,12 @@ export async function main() {
     core.setOutput('status', 'unknownStatus');
 
     core.setFailed(
-      `[${TAG}] Unexpected compare status: '${data.status || ''}'.`,
+      prependTag(tag, `Unexpected compare status: '${data.status || ''}'.`),
     );
   } catch (exception) {
     core.setOutput('status', 'unexpectedException');
 
-    core.setFailed(`[${TAG}] ${exception.message}`);
+    core.setFailed(prependTag(tag, exception.message));
 
     core.debug(exception.stack);
   }

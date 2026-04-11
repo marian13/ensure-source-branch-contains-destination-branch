@@ -32,11 +32,12 @@ jobs:
 
 All inputs are optional.
 
-| Input                | Description                                             | Default                                                |
-| -------------------- | ------------------------------------------------------- | ------------------------------------------------------ |
-| `source-branch`      | The branch to check.                                    | `github.ref_name` (branch that triggered the workflow) |
-| `destination-branch` | The branch that must be contained in the source branch. | `github.event.repository.default_branch`               |
-| `token`              | GitHub token used to call the Compare API.              | `github.token`                                         |
+| Input                | Description                                                                         | Default                                                |
+| -------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `source-branch`      | The branch to check.                                                                | `github.ref_name` (branch that triggered the workflow) |
+| `destination-branch` | The branch that must be contained in the source branch.                             | `github.event.repository.default_branch`               |
+| `token`              | GitHub token used to call the Compare API.                                          | `github.token`                                         |
+| `tag`                | Tag prepended to log messages (e.g. `[my-tag] message`). Omit to log without a tag. | `ensure-source-branch-contains-destination-branch`     |
 
 Example with explicit inputs:
 
