@@ -2,7 +2,7 @@
 # TODO: Clarify Marketplace guideline "repository must not contain any workflow files" — does it apply to test workflows too?
 # - https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace
 #
-# NOTE: This workflow can NOT be run locally via `act` since it requires SSH agent forwarding to push branches to GitHub. There is not simple way to do it. At least for the moment when this workflow was created.
+# NOTE: This workflow can NOT be run locally via `act` — it requires pushing branches to GitHub.
 # - https://github.com/nektos/act
 ##
 
@@ -19,13 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       ##
-      # NOTE: `fetch-depth: 0` fetches the full git history. Required here because `HEAD^` must exist to push the previous commit as a destination branch.
+      # NOTE: `fetch-depth: 2` fetches the last 2 commits. The minimum required for `HEAD^` to exist.
       # - https://github.com/actions/checkout?tab=readme-ov-file#usage
       #
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       ##
       # NOTE: `>> $GITHUB_ENV` sets an environment variable that persists across all subsequent steps in the job.
