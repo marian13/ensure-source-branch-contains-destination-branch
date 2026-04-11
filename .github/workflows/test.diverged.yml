@@ -37,6 +37,7 @@ jobs:
 
       ##
       # NOTE: `git checkout -` switches back to previous branch.
+      # NOTE: `HEAD^` requires at least two commits in the repo. This is not a practical concern — it would only fail if all existing commits were squashed into one, which is an unusual destructive operation on an active repo.
       # - https://stackoverflow.com/a/56770029/12201472
       # - https://git-scm.com/docs/git-checkout#Documentation/git-checkout.txt-branch
       #
