@@ -49,6 +49,10 @@ export async function main() {
   } catch (exception) {
     core.setFailed(`[${ACTION}] GitHub Compare API call failed for '${sourceBranch}...${destinationBranch}': ${exception.message}`);
 
+    /**
+     * NOTE: Use `ACTIONS_RUNNER_DEBUG` to enable debug logs.
+     * - https://docs.github.com/en/actions/how-tos/monitor-workflows/enable-debug-logging#enabling-runner-diagnostic-logging
+     */
     core.debug(exception.stack);
 
     return;

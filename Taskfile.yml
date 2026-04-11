@@ -5,6 +5,7 @@ tasks:
     cmds:
       - brew install act
       - npm install
+      - npx simple-git-hooks
 
   build:
     desc: Bundle index.js into dist/ using ncc.

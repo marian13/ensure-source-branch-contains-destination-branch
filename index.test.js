@@ -114,6 +114,22 @@ describe('GitHub Action', () => {
 
           expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('API error'));
         });
+
+        describe('when ACTIONS_STEP_DEBUG is set', () => {
+          beforeEach(() => {
+            process.env['ACTIONS_STEP_DEBUG'] = 'true';
+          });
+
+          afterEach(() => {
+            delete process.env['ACTIONS_STEP_DEBUG'];
+          });
+
+          test('it logs exception stack trace', async () => {
+            await main();
+
+            expect(core.debug).toHaveBeenCalledWith(expect.stringContaining('Error: API error'));
+          });
+        });
       });
 
       describe('when source branch is ahead of destination branch', () => {
@@ -213,6 +229,34 @@ describe('GitHub Action', () => {
           await main();
 
           expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Unexpected'));
+        });
+      });
+
+      describe('when unexpected exception is raised', () => {
+        beforeEach(() => {
+          github.getOctokit.mockImplementation(() => {
+            throw new Error('Unexpected error');
+          });
+        });
+
+        test('it fails', async () => {
+          await expect(main()).rejects.toThrow('Unexpected error');
+        });
+
+        describe('when ACTIONS_STEP_DEBUG is set', () => {
+          beforeEach(() => {
+            process.env['ACTIONS_STEP_DEBUG'] = 'true';
+          });
+
+          afterEach(() => {
+            delete process.env['ACTIONS_STEP_DEBUG'];
+          });
+
+          test('it logs exception stack trace', async () => {
+            await expect(main()).rejects.toThrow('Unexpected error');
+
+            expect(core.debug).not.toHaveBeenCalled();
+          });
         });
       });
     });
