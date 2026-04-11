@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   ci:
+    name: CI
     runs-on: ubuntu-latest
     env:
       CI: true
@@ -20,6 +21,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24
+          cache: npm
       - run: npm ci
       - run: npm run lint
       - run: npm run test
