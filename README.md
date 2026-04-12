@@ -24,7 +24,6 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: marian13/ensure-source-branch-contains-destination-branch@v1
 ```
 
