@@ -18,22 +18,28 @@ import * as github from "@actions/github";
 import { pathToFileURL } from "url";
 
 /**
+ * NOTE: GitHub returns `refs/pull/N/merge` as the current ref on pull_request events — used to detect whether the source branch SHA must be fetched via the API instead of using `github.context.sha` directly.
+ */
+function isPrMergeRef() {
+  return /^refs\/pull\/\d+\/merge$/.test(github.context.ref);
+}
+
+/**
+ * NOTE: Extracts the plain branch name from `github.context.ref` (e.g. `refs/heads/some-feature` -> `some-feature`).
+ */
+function currentBranch() {
+  return github.context.ref.replace("refs/heads/", "");
+}
+
+/**
  * NOTE: `sha` is the full commit hash of the HEAD commit on the source branch. For example: `a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2`.
+ * NOTE: On `push` events, `github.context.sha` is the real HEAD SHA and is safe to use directly.
+ * NOTE: On `pull_request` events, `github.context.sha` points to a synthetic merge commit - the result of merging the source branch into the destination branch. That commit always contains the destination branch by definition, so using it would cause a false positive. The real HEAD SHA must be fetched via the API instead.
  * - https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/about-commits#about-commits
  * - https://github.com/actions/toolkit/blob/%40actions/github%401.1.0/packages/github/src/context.ts#L38
  */
 async function resolveSha({ octokit, repo, sourceBranch }) {
-  const currentBranch = github.context.ref.replace("refs/heads/", "");
-
-  /**
-   * NOTE: On `pull_request` events, `github.context.sha` is the last merge commit of the pull request merge branch, not the real HEAD of the source branch.
-   * NOTE: Using it would cause a false positive - the merge commit always contains the destination branch by definition.
-   * NOTE: On `push` events, `github.context.sha` is the real HEAD SHA, so the short-circuit is safe.
-   * - https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request
-   */
-  const isPullRequest = github.context.eventName === "pull_request";
-
-  if (!isPullRequest && sourceBranch === currentBranch) {
+  if (!isPrMergeRef() && sourceBranch === currentBranch()) {
     return github.context.sha;
   }
 

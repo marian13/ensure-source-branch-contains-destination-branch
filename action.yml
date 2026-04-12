@@ -2,14 +2,22 @@ name: Ensure Source Contains Destination Branch
 description: Verifies that the source branch contains all commits from the destination branch (e.g. main), preventing out-of-date merges.
 
 inputs:
+  ##
+  # NOTE: `github.head_ref` - source branch name on pull_request events (e.g. some-feature)
+  # NOTE: `github.ref_name` - source branch name on push events
+  #
   source-branch:
     description: The branch to check (defaults to the branch that triggered the workflow).
     required: false
-    default: ${{ github.ref_name }}
+    default: ${{ github.head_ref || github.ref_name }}
+  ##
+  # NOTE: `github.base_ref` - destination branch name on pull_request events (e.g. main)
+  # NOTE: `github.event.repository.default_branch` - destination branch name on push events
+  #
   destination-branch:
     description: The branch that must be contained in the source branch (defaults to the repo default branch).
     required: false
-    default: ${{ github.event.repository.default_branch }}
+    default: ${{ github.base_ref || github.event.repository.default_branch }}
   token:
     description: GitHub token used to call the SHA API and the Compare API.
     required: false

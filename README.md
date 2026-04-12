@@ -46,7 +46,7 @@ steps:
   # ...
   - uses: marian13/ensure-source-branch-contains-destination-branch@v1
     with:
-      source-branch: feature/my-feature
+      source-branch: feature/some-feature
       destination-branch: main
       token: ${{ secrets.GITHUB_TOKEN }}
       tag: my-tag
