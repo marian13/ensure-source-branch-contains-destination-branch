@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0-alpha.1 (2026-04-12)
+
+
+### Features
+
+* **ensure-source-branch-contains-destination-branch:** initial release ([6b94535](https://github.com/marian13/ensure-source-branch-contains-destination-branch/commit/6b9453570c664f8cf1c9d195fb9ed81b8486809f))
+
+
+### Bug Fixes
+
+* **ensure-source-branch-contains-destination-branch:** use proper defaults for PRs ([dacf739](https://github.com/marian13/ensure-source-branch-contains-destination-branch/commit/dacf739fee72542c84aec52ec291a54d0594123d))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([e3db950](https://github.com/marian13/ensure-source-branch-contains-destination-branch/commit/e3db950153cb5ef110d22d201fc6b225fd2afc51))
+
 ## 1.0.0 (2026-04-11)
 
 ### Features
