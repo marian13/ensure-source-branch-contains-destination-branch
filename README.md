@@ -32,12 +32,12 @@ jobs:
 
 All inputs are optional.
 
-| Input                | Description                                                                                           | Default                                                |
-| -------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `source-branch`      | The branch to check.                                                                                  | `github.ref_name` (branch that triggered the workflow) |
-| `destination-branch` | The branch that must be contained in the source branch.                                               | `github.event.repository.default_branch`               |
-| `token`              | GitHub token used to call the SHA API and the Compare API.                                            | `github.token`                                         |
-| `tag`                | Tag prepended to log messages (e.g. `[my-tag] message`). Set to an empty string to log without a tag. | `ensure-source-branch-contains-destination-branch`     |
+| Input                | Description                                                                                           | Default                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `source-branch`      | The branch to check.                                                                                  | PR head branch on `pull_request`, current branch on `push`            |
+| `destination-branch` | The branch that must be contained in the source branch.                                               | PR base branch on `pull_request`, repository default branch on `push` |
+| `token`              | GitHub token used to call the SHA API and the Compare API.                                            | `github.token`                                                        |
+| `tag`                | Tag prepended to log messages (e.g. `[my-tag] message`). Set to an empty string to log without a tag. | `ensure-source-branch-contains-destination-branch`                    |
 
 Example with explicit inputs:
 
@@ -71,6 +71,12 @@ steps:
     run: echo "Status was ${{ steps.check.outputs.status }}"
   # ...
 ```
+
+## Supported Events
+
+`push` and `pull_request`.
+
+See [What happens on unsupported events?](docs/user/unsupported-events.md)
 
 ## More Docs
 

@@ -10,6 +10,9 @@ vi.mock("@actions/github", () => ({
     ref: "refs/heads/feature/callbacks",
     sha: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
     eventName: "push",
+    payload: {
+      repository: { default_branch: "main" },
+    },
   },
   getOctokit: vi.fn(),
 }));
@@ -33,6 +36,7 @@ describe("GitHub Action", () => {
 
         github.context.ref = "refs/heads/feature/callbacks";
         github.context.eventName = "push";
+        github.context.payload = { repository: { default_branch: "main" } };
 
         Object.assign(process.env, ENV);
 
@@ -68,8 +72,12 @@ describe("GitHub Action", () => {
             delete process.env["INPUT_SOURCE-BRANCH"];
           });
 
-          test("it fails", async () => {
-            await expect(main()).rejects.toThrow("source-branch");
+          test("it uses the current branch as default", async () => {
+            await main();
+
+            expect(core.debug).toHaveBeenCalledWith(
+              expect.stringContaining("Resolved SHA for 'feature/callbacks'"),
+            );
           });
         });
 
@@ -78,8 +86,12 @@ describe("GitHub Action", () => {
             delete process.env["INPUT_DESTINATION-BRANCH"];
           });
 
-          test("it fails", async () => {
-            await expect(main()).rejects.toThrow("destination-branch");
+          test("it uses the repository default branch", async () => {
+            await main();
+
+            expect(core.debug).toHaveBeenCalledWith(
+              expect.stringContaining("Comparing 'main..."),
+            );
           });
         });
 
@@ -478,6 +490,13 @@ describe("GitHub Action", () => {
         beforeEach(() => {
           github.context.eventName = "pull_request";
           github.context.ref = "refs/pull/9/merge";
+          github.context.payload = {
+            pull_request: {
+              head: { ref: "feature/callbacks" },
+              base: { ref: "main" },
+            },
+            repository: { default_branch: "main" },
+          };
 
           github.getOctokit.mockReturnValue({
             rest: {
@@ -502,8 +521,12 @@ describe("GitHub Action", () => {
             delete process.env["INPUT_SOURCE-BRANCH"];
           });
 
-          test("it fails", async () => {
-            await expect(main()).rejects.toThrow("source-branch");
+          test("it uses the pull request head branch as default", async () => {
+            await main();
+
+            expect(core.debug).toHaveBeenCalledWith(
+              expect.stringContaining("Resolved SHA for 'feature/callbacks'"),
+            );
           });
         });
 
@@ -512,8 +535,12 @@ describe("GitHub Action", () => {
             delete process.env["INPUT_DESTINATION-BRANCH"];
           });
 
-          test("it fails", async () => {
-            await expect(main()).rejects.toThrow("destination-branch");
+          test("it uses the pull request base branch as default", async () => {
+            await main();
+
+            expect(core.debug).toHaveBeenCalledWith(
+              expect.stringContaining("Comparing 'main..."),
+            );
           });
         });
 

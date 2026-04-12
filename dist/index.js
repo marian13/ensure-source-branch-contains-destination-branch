@@ -36241,17 +36241,53 @@ const external_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.met
 
 
 /**
- * NOTE: GitHub returns `refs/pull/N/merge` as the current ref on pull_request events — used to detect whether the source branch SHA must be fetched via the API instead of using `github.context.sha` directly.
- */
-function isPrMergeRef() {
-  return /^refs\/pull\/\d+\/merge$/.test(github_context.ref);
-}
-
-/**
  * NOTE: Extracts the plain branch name from `github.context.ref` (e.g. `refs/heads/some-feature` -> `some-feature`).
  */
 function currentBranch() {
   return github_context.ref.replace("refs/heads/", "");
+}
+
+/**
+ * NOTE: On `push` events, falls back to the current branch name derived from `github.context.ref`.
+ * NOTE: On `pull_request` events, falls back to the real head branch from the event payload.
+ * NOTE: On unsupported events, `source-branch` must be passed explicitly — throws if missing.
+ */
+function resolveSourceBranch() {
+  if (github_context.eventName === "push") {
+    return getInput("source-branch") || currentBranch();
+  }
+
+  if (github_context.eventName === "pull_request") {
+    return (
+      getInput("source-branch") ||
+      github_context.payload.pull_request.head.ref
+    );
+  }
+
+  return getInput("source-branch", { required: true });
+}
+
+/**
+ * NOTE: On `push` events, falls back to the repository default branch.
+ * NOTE: On `pull_request` events, falls back to the base branch from the event payload.
+ * NOTE: On unsupported events, `destination-branch` must be passed explicitly — throws if missing.
+ */
+function resolveDestinationBranch() {
+  if (github_context.eventName === "push") {
+    return (
+      getInput("destination-branch") ||
+      github_context.payload.repository.default_branch
+    );
+  }
+
+  if (github_context.eventName === "pull_request") {
+    return (
+      getInput("destination-branch") ||
+      github_context.payload.pull_request.base.ref
+    );
+  }
+
+  return getInput("destination-branch", { required: true });
 }
 
 /**
@@ -36262,7 +36298,7 @@ function currentBranch() {
  * - https://github.com/actions/toolkit/blob/%40actions/github%401.1.0/packages/github/src/context.ts#L38
  */
 async function resolveSha({ octokit, repo, sourceBranch }) {
-  if (!isPrMergeRef() && sourceBranch === currentBranch()) {
+  if (github_context.eventName === "push" && sourceBranch === currentBranch()) {
     return github_context.sha;
   }
 
@@ -36311,15 +36347,8 @@ async function resolveCompareApiData({
 }
 
 async function main() {
-  /**
-   * NOTE: Inputs are marked as `required: true` to ensure `getInput` throws immediately if a value is missing.
-   * NOTE: In practice, values are always present because `action.yml` defines defaults.
-   * - https://docs.github.com/en/actions/sharing-automations/creating-actions/metadata-syntax-for-github-actions#inputs
-   */
-  const sourceBranch = getInput("source-branch", { required: true });
-  const destinationBranch = getInput("destination-branch", {
-    required: true,
-  });
+  const sourceBranch = resolveSourceBranch();
+  const destinationBranch = resolveDestinationBranch();
   const token = getInput("token", { required: true });
   const tag = getInput("tag");
 
