@@ -32,12 +32,10 @@ jobs:
 
 All inputs are optional.
 
-| Input                | Description                                                                                           | Default                                                               |
-| -------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `source-branch`      | The branch to check.                                                                                  | PR head branch on `pull_request`, current branch on `push`            |
-| `destination-branch` | The branch that must be contained in the source branch.                                               | PR base branch on `pull_request`, repository default branch on `push` |
-| `token`              | GitHub token used to call the SHA API and the Compare API.                                            | `github.token`                                                        |
-| `tag`                | Tag prepended to log messages (e.g. `[my-tag] message`). Set to an empty string to log without a tag. | `ensure-source-branch-contains-destination-branch`                    |
+- `source-branch`: The branch to check. Defaults to the PR head branch on `pull_request`, or the current branch on `push`.
+- `destination-branch`: The branch that must be contained in the source branch. Defaults to the PR base branch on `pull_request`, or the repository default branch on `push`.
+- `token`: GitHub token used to call the SHA API and the Compare API. Defaults to `github.token`.
+- `tag`: Tag prepended to log messages (e.g. `[my-tag] message`). Set to an empty string to log without a tag. Defaults to `ensure-source-branch-contains-destination-branch`.
 
 Example with explicit inputs:
 
@@ -55,9 +53,7 @@ steps:
 
 ## Outputs
 
-| Output   | Description                      | Possible values                                                                                                                    |
-| -------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `status` | Result of the branch comparison. | `sameBranch`, `ahead`, `identical`, `behind`, `diverged`, `shaApiError`, `compareApiError`, `unknownStatus`, `unexpectedException` |
+- `status`: Result of the branch comparison. Possible values: `sameBranch`, `ahead`, `identical`, `behind`, `diverged`, `shaApiError`, `compareApiError`, `unknownStatus`, `unexpectedException`.
 
 Example of how to read the status in a subsequent step:
 
