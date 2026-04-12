@@ -34,10 +34,6 @@ describe("GitHub Action", () => {
       beforeEach(() => {
         vi.restoreAllMocks();
 
-        github.context.ref = "refs/heads/feature/callbacks";
-        github.context.eventName = "push";
-        github.context.payload = { repository: { default_branch: "main" } };
-
         Object.assign(process.env, ENV);
 
         vi.spyOn(core, "info");
@@ -45,19 +41,6 @@ describe("GitHub Action", () => {
         vi.spyOn(core, "setOutput");
         vi.spyOn(core, "setSecret");
         vi.spyOn(core, "debug");
-
-        github.getOctokit.mockReturnValue({
-          rest: {
-            git: {
-              getRef: vi.fn(),
-            },
-            repos: {
-              compareCommitsWithBasehead: vi.fn().mockResolvedValue({
-                data: { status: "ahead" },
-              }),
-            },
-          },
-        });
       });
 
       afterEach(() => {
@@ -67,6 +50,22 @@ describe("GitHub Action", () => {
       });
 
       describe("push event", () => {
+        beforeEach(() => {
+          github.context.ref = "refs/heads/feature/callbacks";
+          github.context.eventName = "push";
+          github.context.payload = { repository: { default_branch: "main" } };
+
+          github.getOctokit.mockReturnValue({
+            rest: {
+              repos: {
+                compareCommitsWithBasehead: vi.fn().mockResolvedValue({
+                  data: { status: "ahead" },
+                }),
+              },
+            },
+          });
+        });
+
         describe("when source-branch is not passed", () => {
           beforeEach(() => {
             delete process.env["INPUT_SOURCE-BRANCH"];
