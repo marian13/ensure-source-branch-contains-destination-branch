@@ -1,5 +1,5 @@
-name: Ensure Source Contains Destination Branch
-description: Verifies that the source branch contains all commits from the destination branch (e.g. main), preventing out-of-date merges.
+name: Ensure Source Branch Contains Destination Branch
+description: Verifies that the source branch contains all commits from the destination branch (e.g., main), preventing out-of-date merges.
 
 inputs:
   ##
@@ -18,7 +18,7 @@ inputs:
     required: false
     default: ${{ github.token }}
   tag:
-    description: Tag prepended to log messages (e.g. "[my-tag] message"). Set to '' to log without a tag.
+    description: Tag prepended to log messages (e.g., "[some-tag] message"). Set to '' to log without a tag.
     required: false
     default: ensure-source-branch-contains-destination-branch
 
