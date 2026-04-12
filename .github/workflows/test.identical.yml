@@ -11,22 +11,40 @@ name: Test (identical)
 on: [push, pull_request]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test:
     name: Test (identical)
     runs-on: ubuntu-latest
     steps:
+      ##
+      # NOTE: `fetch-depth: 0` is not needed here — the destination branch is created by pushing HEAD itself, so no prior history is required.
+      # - https://github.com/actions/checkout?tab=readme-ov-file#usage
+      #
       - name: Checkout
         uses: actions/checkout@v6
+
+      ##
+      # NOTE: `>> $GITHUB_ENV` sets an environment variable that persists across all subsequent steps in the job.
+      # - https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-environment-variable
+      #
+      - name: Set destination branch
+        run: echo "DESTINATION_BRANCH=test/destination-identical-${{ github.run_id }}" >> $GITHUB_ENV
+
+      ##
+      # NOTE: `git push origin HEAD:...` pushes the current commit to a new branch. This requires only `contents: write` as long as the current commit does not introduce new or modified workflow files compared to what is already on GitHub.
+      # NOTE: If the current commit modifies `.github/workflows/`, GitHub will reject the push with a permission error. In that case, push a follow-up commit without workflow file changes to re-trigger this workflow.
+      #
+      - name: Create destination branch at current SHA
+        run: git push origin HEAD:refs/heads/$DESTINATION_BRANCH
 
       - name: Run action
         id: check
         uses: ./
         with:
-          source-branch: main
-          destination-branch: main
+          source-branch: ${{ github.ref_name }}
+          destination-branch: ${{ env.DESTINATION_BRANCH }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Assert status is identical
@@ -36,3 +54,7 @@ jobs:
 
             exit 1
           fi
+
+      - name: Cleanup
+        if: always()
+        run: git push origin --delete $DESTINATION_BRANCH || true
