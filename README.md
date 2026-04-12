@@ -70,15 +70,14 @@ steps:
 
 ## Supported Events
 
-`push` and `pull_request`.
-
-See [What happens on unsupported events?](docs/user/unsupported-events.md)
+Currently only `push` and `pull_request` are supported.
 
 ## More Docs
 
-- [How does it work?](docs/user/how-it-works.md)
-- [Why not `git fetch`?](docs/user/why-not-git-fetch.md)
-- [Contributing](CONTRIBUTING.md)
+- [What happens on unsupported events?](docs/user/unsupported-events.md)
+- [How does this action work?](docs/user/how-it-works.md)
+- [Why not `git fetch`? Why SHA and Compare API?](docs/user/why-not-git-fetch.md)
+- [How to contribute?](CONTRIBUTING.md)
 
 ---
 
