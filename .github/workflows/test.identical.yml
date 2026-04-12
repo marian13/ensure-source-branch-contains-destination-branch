@@ -43,7 +43,6 @@ jobs:
         id: check
         uses: ./
         with:
-          source-branch: ${{ github.ref_name }}
           destination-branch: ${{ env.DESTINATION_BRANCH }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
