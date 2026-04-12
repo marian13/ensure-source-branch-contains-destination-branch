@@ -4,7 +4,7 @@ A GitHub Action that verifies the source branch contains all commits from the de
 
 ## Usage
 
-Add a step to workflow like so:
+Add a step to the workflow like so:
 
 ```yaml
 steps:
@@ -35,7 +35,7 @@ All inputs are optional.
 - `source-branch`: The branch to check. Defaults to the PR head branch on `pull_request`, or the current branch on `push`.
 - `destination-branch`: The branch that must be contained in the source branch. Defaults to the PR base branch on `pull_request`, or the repository default branch on `push`.
 - `token`: GitHub token used to call the SHA API and the Compare API. Defaults to `github.token`.
-- `tag`: Tag prepended to log messages (e.g. `[my-tag] message`). Set to an empty string to log without a tag. Defaults to `ensure-source-branch-contains-destination-branch`.
+- `tag`: Tag prepended to log messages (e.g., `[some-tag] message`). Set to an empty string to log without a tag. Defaults to `ensure-source-branch-contains-destination-branch`.
 
 Example with explicit inputs:
 
@@ -70,7 +70,7 @@ steps:
 
 ## Supported Events
 
-Currently only `push` and `pull_request` are supported.
+Currently, only `push` and `pull_request` are supported.
 
 ## More Docs
 
@@ -81,4 +81,4 @@ Currently only `push` and `pull_request` are supported.
 
 ---
 
-Copyright (c) 2022-2026 Marian Kostyk.
+Copyright (c) 2026 Marian Kostyk.
