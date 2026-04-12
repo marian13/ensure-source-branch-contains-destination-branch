@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/marian13/ensure-source-branch-contains-destination-branch/compare/v1.0.0...v1.0.1) (2026-04-12)
+
+
+### Miscellaneous Chores
+
+* release 1.0.1 ([c7c1ef1](https://github.com/marian13/ensure-source-branch-contains-destination-branch/commit/c7c1ef1e1f440f3abe89605573dce1b95b63363d))
+
 ## [1.0.0](https://github.com/marian13/ensure-source-branch-contains-destination-branch/compare/v1.0.0-alpha.1...v1.0.0) (2026-04-12)
 
 
