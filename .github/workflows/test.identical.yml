@@ -20,10 +20,13 @@ jobs:
     steps:
       ##
       # NOTE: `fetch-depth: 0` is not needed here — the destination branch is created by pushing HEAD itself, so no prior history is required.
+      # NOTE: `ref: ${{ github.head_ref || github.ref }}` ensures that on `pull_request` events we check out the real PR head branch, not the synthetic merge commit that `actions/checkout` uses by default. Without this, `HEAD` would point to the merge commit SHA, which is ahead of the real source branch SHA — causing the identical test to report `behind` instead.
       # - https://github.com/actions/checkout?tab=readme-ov-file#usage
       #
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
 
       ##
       # NOTE: `>> $GITHUB_ENV` sets an environment variable that persists across all subsequent steps in the job.
