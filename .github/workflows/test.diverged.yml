@@ -23,7 +23,7 @@ jobs:
       # - https://github.com/actions/checkout?tab=readme-ov-file#usage
       #
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 2
 

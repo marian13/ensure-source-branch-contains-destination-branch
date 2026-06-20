@@ -32,7 +32,7 @@ jobs:
       # NOTE: The floating `v1` tag always points to the latest `1.x` release, so users pinned to `@v1` get updates automatically.
       #
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         if: ${{ steps.release.outputs.release_created }}
 
       - name: Update floating v1 tag
